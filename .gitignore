@@ -1,0 +1,16 @@
+# Large data — rebuilt by script, never committed
+data/dem/
+data/horizons/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Secrets
+.env
+.streamlit/secrets.toml
+
+# OS junk
+Thumbs.db
+.DS_Store
