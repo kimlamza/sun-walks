@@ -219,8 +219,10 @@ https://github.com/YOUR-USERNAME/sun-walks.git
 Back in Cursor's terminal, substituting your actual username:
 
 ```powershell
-git remote add origin https://github.com/YOUR-USERNAME/sun-walks.git
+git remote add origin https://github.com/kimlamza/sun-walks.git
 ```
+
+⚠ **Substitute your real username — do not paste a placeholder.** Pasting `YOUR-USERNAME` literally produces `remote: Repository not found`, which looks like a missing repository but is only a bad URL. If it happens, correct it with `git remote set-url origin <real url>` — `set-url` rather than `add`, because `origin` already exists.
 
 `origin` is just a nickname for "the copy on GitHub". Then:
 
@@ -414,6 +416,24 @@ You now have:
 - **One independent validation already passed**
 
 **Session 2** builds the shadow engine — and the good news is that it needs no new installs beyond `numpy` and `pytest`, and no downloaded data until the very end.
+
+---
+
+## Friction actually hit on 9 September 2026
+
+Recorded because a first run through is the only chance to catch these.
+
+| What happened | Cause | Resolution |
+|---|---|---|
+| **Python 3.12 offered only source tarballs** | 3.12 moved to security-fixes-only; 3.12.10 was the last with a Windows installer | Switched to **3.13.15**. Document updated |
+| **Git installer skipped all option screens** | Some builds install silently with defaults | Harmless. Editor set afterwards with `git config --global core.editor notepad` |
+| **Cursor wasn't installed** | An account on cursor.com had been created, but not the desktop app | Downloaded from cursor.com. Account ≠ application, same as Git ≠ GitHub |
+| **Cursor opened as "Cursor Agent"**, no file tree, no icon strip | Cursor's agent surface rather than the editor view | **Unresolved.** Session 1 completed in plain PowerShell instead. Revisit at the start of session 2 — try `Ctrl+Shift+E`, then `Ctrl+Shift+P` → "View: Show Explorer" |
+| **`Set-ExecutionPolicy` failed** with "Cannot convert value RemoteSigned,answer" | Prose was pasted along with the command | Run the command alone. The `Y` confirmation is a separate prompt |
+| **`git push` — "no upstream branch"** | GitHub repo creation and `git remote add` had been skipped | `git remote add origin <url>` then `git push -u origin main` |
+| **`remote: Repository not found`** | Placeholder `YOUR-USERNAME` pasted literally | `git remote set-url origin <real url>` |
+
+**The lesson worth keeping:** none of these were the actual work. Toolchain friction is the tax on session 1 and it is paid once — session 2 needs no new installs, no accounts, and no downloads.
 
 ---
 
