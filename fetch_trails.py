@@ -31,12 +31,24 @@ Run it with:  python fetch_trails.py
 
 import json
 import re
+import time
 from pathlib import Path
 
 import requests
 
-OVERPASS_URL = "https://overpass-api.de/api/interpreter"
+# Public Overpass instances, tried in order. The main one returns 504
+# Gateway Timeout when asked for nine name patterns across this bounding
+# box in one go - hence both the batching below and these fallbacks.
+OVERPASS_URLS = [
+    "https://overpass-api.de/api/interpreter",
+    "https://overpass.kumi.systems/api/interpreter",
+    "https://overpass.osm.ch/api/interpreter",
+]
 ROUTES_DIR = Path("data/routes")
+
+# How many trail names to ask for at once. Small enough that the server
+# answers comfortably, large enough not to hammer it with requests.
+BATCH_SIZE = 3
 
 # south, west, north, east - Canmore, Exshaw and Banff townsite
 BBOX = (50.90, -115.80, 51.35, -115.05)
@@ -48,24 +60,53 @@ WALKABLE = "^(path|footway|track|steps|bridleway)$"
 # Search term, and the role each walk plays in the contrast set.
 # See docs/09-candidate-walks.md.
 TRAILS = {
-    "grassi-lakes": ("Grassi Lakes", "NE-facing - morning sun"),
-    "grotto-canyon": ("Grotto Canyon", "Deep shade extreme"),
-    "montane-traverse": ("Montane", "SW-facing bench - afternoon sun"),
-    "tunnel-mountain": ("Tunnel Mountain Summit", "High and open - control"),
-    "quarry-lake": ("Quarry Lake", "Open valley floor, high skyline"),
+    "grassi-lakes": ("Grassi Lakes", "NE-facing under Ha Ling"),
+    "grotto-canyon": ("Grotto Canyon", "Slot canyon - azimuth gated"),
+    "montane-traverse": ("Montane", "SW-facing bench - the winter walk"),
+    "tunnel-mountain": ("Tunnel Mountain Summit", "Small hill among giants"),
+    "cougar-creek": ("Cougar Creek", "NE drainage - steep sided"),
+    "goat-creek": ("Goat Creek", "Spray valley - different orientation"),
+    "heart-creek": ("Heart Creek", "East end of the Bow Valley"),
+    "troll-falls": ("Troll Falls", "Kananaskis valley - runs N-S"),
+    "lake-minnewanka": ("Minnewanka", "E-W lakeshore - south facing"),
+    # Quarry Lake is fetched separately, by proximity - there is no way in
+    # OpenStreetMap with that name. See fetch_quarry_lake.py.
 }
 
 
-def build_query():
-    """A single Overpass query covering every trail we are looking for."""
+def build_query(terms):
+    """An Overpass query covering the given trail names."""
     south, west, north, east = BBOX
-    names = "|".join(term for term, _ in TRAILS.values())
+    names = "|".join(terms)
     return f"""
     [out:json][timeout:180];
     way["highway"~"{WALKABLE}"]["name"~"{names}",i]
        ({south},{west},{north},{east});
     out geom;
     """
+
+
+def run_query(terms, attempts=3):
+    """Ask Overpass, retrying and rotating instances if one is busy."""
+    last_error = None
+    for attempt in range(attempts):
+        for url in OVERPASS_URLS:
+            try:
+                response = requests.post(
+                    url,
+                    data={"data": build_query(terms)},
+                    headers={"User-Agent": "sun-walks/0.1 (personal project)"},
+                    timeout=300,
+                )
+                response.raise_for_status()
+                return response.json().get("elements", [])
+            except Exception as error:
+                last_error = error
+                print(f"    {url.split('/')[2]}: {type(error).__name__}")
+        wait = 10 * (attempt + 1)
+        print(f"    all instances busy, waiting {wait}s...")
+        time.sleep(wait)
+    raise RuntimeError(f"Overpass unreachable: {last_error}")
 
 
 def which_trail(osm_name):
@@ -79,16 +120,20 @@ def which_trail(osm_name):
 if __name__ == "__main__":
     ROUTES_DIR.mkdir(parents=True, exist_ok=True)
 
-    print("Querying OpenStreetMap once for all five trails...")
-    response = requests.post(
-        OVERPASS_URL,
-        data={"data": build_query()},
-        headers={"User-Agent": "sun-walks/0.1 (personal project)"},
-        timeout=300,
-    )
-    response.raise_for_status()
-    elements = response.json().get("elements", [])
-    print(f"  {len(elements)} matching ways returned\n")
+    terms = [term for term, _ in TRAILS.values()]
+    batches = [terms[i:i + BATCH_SIZE]
+               for i in range(0, len(terms), BATCH_SIZE)]
+
+    elements = []
+    for number, batch in enumerate(batches, start=1):
+        print(f"Batch {number} of {len(batches)}: {', '.join(batch)}")
+        found = run_query(batch)
+        print(f"  {len(found)} ways")
+        elements.extend(found)
+        if number < len(batches):
+            time.sleep(5)          # be polite to free infrastructure
+
+    print(f"\n{len(elements)} matching ways in total\n")
 
     collected = {slug: {"points": [], "seen": set(), "names": set()}
                  for slug in TRAILS}

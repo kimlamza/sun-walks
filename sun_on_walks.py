@@ -1,25 +1,27 @@
 """
-What fraction of each walk is in direct sunlight, if you set off at a
-given time?
+Which walk will actually be in the sun, if you set off at a given time?
 
-This is the product in miniature. For each walk:
+The product, in miniature. For each walk:
 
-  - read its distance and ascent from data/walks.csv
-  - estimate how long it takes (Naismith, see src/duration.py)
-  - work out the representative time: start plus half the duration
+  - read distance and ascent from data/walks.csv
+  - estimate how long it takes (Naismith, src/duration.py)
+  - the representative time is start plus half the duration
   - find where the sun is at that moment
-  - ray march from each trail point towards it, and count how many have a
-    clear line
+  - ray march from each trail point towards it and count clear lines
+  - ask Open-Meteo whether there will be any direct beam to block
 
-The headline figure is the midpoint. Start and end are shown alongside,
-because the measured results made the case: Montane Traverse runs 63%
-sunlit at 10:30 and 100% at 15:30, so one number hides a lot on a long
-winter walk. That is three instants, not a simulation - the design
-constraint in docs/02 section 1a still holds.
+The two factors stay separate and are never blended into one score. A
+single number would hide which one drove the answer, and they fail in
+completely different ways: perfect geometry under thick cloud calls for
+"go anywhere, it makes no difference", while a brilliant day behind a
+ridge calls for "go somewhere else".
+
+Weather is only available inside the forecast horizon, about 16 days. For
+anything further out the honest answer is geometry alone, clearly labelled.
 
 Alberta is on permanent UTC-6 from November 2026 (Official Time Act,
 18 June 2026), so on the solstice sunrise is 09:46 and sunset 17:30.
-Winter start times before 10:00 are simply darkness.
+Winter start times before 10:00 are darkness.
 
 Run it with:  python sun_on_walks.py
 """
@@ -33,6 +35,7 @@ import pvlib
 import rasterio
 from pyproj import Transformer
 
+from src import weather
 from src.duration import format_duration, walk_times
 from src.terrain import horizon_angle, is_sunlit
 
@@ -45,14 +48,9 @@ UTM_11N = "EPSG:26911"
 CELL_SIZE_M = 30
 TIMEZONE = "America/Edmonton"
 
-# Neighbouring points on a trail give almost identical answers, and ray
-# marching every one is slow in plain Python. Every 3rd is plenty.
-SAMPLE_EVERY = 3
-
-SCENARIOS = [
-    ("2026-12-21", "11:00", "Midwinter, setting off at 11:00"),
-    ("2026-06-21", "09:00", "Midsummer, setting off at 09:00"),
-]
+# Neighbouring trail points give almost identical answers, and ray marching
+# every one is slow in plain Python. Every 4th is plenty for ten walks.
+SAMPLE_EVERY = 4
 
 
 def load_terrain():
@@ -73,18 +71,16 @@ def load_terrain():
 
 
 def load_walks():
-    """Metadata for every walk, with trail geometry attached where we have it."""
     walks = []
     with WALKS_CSV.open() as handle:
         for row in csv.DictReader(handle):
             row["distance_km"] = float(row["distance_km"])
             row["ascent_m"] = float(row["ascent_m"])
-
             route_file = ROUTES_DIR / f"{row['slug']}.json"
-            if route_file.exists():
-                row["points"] = json.loads(route_file.read_text())["points"]
-            else:
-                row["points"] = None
+            row["points"] = (
+                json.loads(route_file.read_text())["points"]
+                if route_file.exists() else None
+            )
             walks.append(row)
     return walks
 
@@ -101,9 +97,6 @@ def sun_position(lat, lon, height_m, when):
 def fraction_in_sun(dem, grid_position, points, when):
     """Percentage of sampled trail points with a clear line to the sun."""
     sampled = points[::SAMPLE_EVERY]
-
-    # The sun moves negligibly across a few kilometres of trail, so one
-    # position for the whole route is fine.
     mid_lat, mid_lon = sampled[len(sampled) // 2]
     elevation, azimuth = sun_position(mid_lat, mid_lon, 1400, when)
 
@@ -125,60 +118,187 @@ def fraction_in_sun(dem, grid_position, points, when):
     return 100 * lit / counted, counted
 
 
+def check_coverage(dem, grid_position, walks, max_distance_m=30_000):
+    """
+    Warn where the terrain model runs out before the ray march does.
+
+    Two separate problems. Points outside the model are silently skipped,
+    which quietly shrinks the sample. And a point near the edge still gets
+    an answer, but its rays stop early - so a mountain beyond the edge is
+    invisible and the walk reads sunnier than it is. The second is the
+    dangerous one, because nothing complains.
+    """
+    rows, cols = dem.shape
+    margin_cells = max_distance_m / CELL_SIZE_M
+    warnings = []
+
+    for walk in walks:
+        if not walk["points"]:
+            continue
+
+        outside = 0
+        least_margin = None
+        for lat, lon in walk["points"][::SAMPLE_EVERY]:
+            position = grid_position(lat, lon)
+            if position is None:
+                outside += 1
+                continue
+            row, col = position
+            margin = min(row, col, rows - 1 - row, cols - 1 - col)
+            if least_margin is None or margin < least_margin:
+                least_margin = margin
+
+        if outside:
+            warnings.append(f"  {walk['slug']:18} {outside} sampled points "
+                            f"fall outside the terrain model")
+        if least_margin is not None and least_margin < margin_cells:
+            reach_km = least_margin * CELL_SIZE_M / 1000
+            warnings.append(f"  {walk['slug']:18} closest edge is "
+                            f"{reach_km:.0f} km away, so rays stop short of "
+                            f"the {max_distance_m / 1000:.0f} km design "
+                            f"distance")
+
+    if warnings:
+        print("TERRAIN MODEL COVERAGE WARNINGS")
+        print("  Distant mountains beyond the edge are invisible, so these")
+        print("  walks may read sunnier than they are. Widen the DEM to fix.")
+        print()
+        for line in warnings:
+            print(line)
+        print()
+
+
+def centre_of(points):
+    return (
+        sum(p[0] for p in points) / len(points),
+        sum(p[1] for p in points) / len(points),
+    )
+
+
 def percent(value):
-    return "  dark" if value is None else f"{value:5.0f}%"
+    return "  --" if value is None else f"{value:3.0f}%"
+
+
+def number(value, suffix="", width=5):
+    """Format a figure that the forecast may simply not have."""
+    if value is None:
+        return f"{'--':>{width}}{suffix}"
+    return f"{value:{width}.1f}{suffix}"
+
+
+def report(dem, grid_position, walks, start, label):
+    print("=" * 92)
+    print(label)
+    print()
+
+    rows = []
+    for walk in walks:
+        begin, middle, finish, hours = walk_times(
+            start, walk["distance_km"], walk["ascent_m"]
+        )
+        entry = {
+            "walk": walk,
+            "takes": format_duration(hours),
+            "at": middle,
+            "start": None, "mid": None, "end": None,
+            "weather": None,
+        }
+
+        if walk["points"]:
+            entry["start"], _ = fraction_in_sun(
+                dem, grid_position, walk["points"], begin)
+            entry["mid"], _ = fraction_in_sun(
+                dem, grid_position, walk["points"], middle)
+            entry["end"], _ = fraction_in_sun(
+                dem, grid_position, walk["points"], finish)
+
+            lat, lon = centre_of(walk["points"])
+            entry["weather"] = weather.at(lat, lon, middle)
+
+        rows.append(entry)
+
+    rows.sort(key=lambda e: -1 if e["mid"] is None else -e["mid"])
+
+    have_weather = any(e["weather"] for e in rows)
+
+    header = (f"  {'Walk':18} {'Takes':>5} {'At':>5}  "
+              f"{'Start':>5} {'MID':>5} {'End':>5}")
+    if have_weather:
+        header += f"   {'Direct beam':<14} {'Temp':>6} {'Wind':>6}"
+    print(header)
+    print("  " + "-" * (88 if have_weather else 48))
+
+    for e in rows:
+        if not e["walk"]["points"]:
+            print(f"  {e['walk']['slug']:18} {e['takes']:>5} "
+                  f"{e['at']:%H:%M}   no trail geometry")
+            continue
+
+        line = (f"  {e['walk']['slug']:18} {e['takes']:>5} {e['at']:%H:%M}  "
+                f"{percent(e['start'])} {percent(e['mid'])} "
+                f"{percent(e['end'])}")
+
+        w = e["weather"]
+        if have_weather and w:
+            beam = weather.describe_beam(w["dni"])
+            dni = "?" if w["dni"] is None else f"{w['dni']:.0f}"
+            line += (f"   {beam + ' (' + dni + ')':<16} "
+                     f"{number(w['temperature'], 'C')} "
+                     f"{number(w['wind'])}")
+        elif have_weather:
+            line += "   beyond forecast"
+
+        print(line)
+
+    # The short-circuit: if there is no direct beam, geometry is moot.
+    #
+    # This tests the MEDIAN, not any(). Direct normal irradiance is close to
+    # binary - the sun's disc is either covered or it is not - so readings
+    # cluster near 0 or near 500 with little between, and a single sharp
+    # cloud edge over one trailhead would otherwise suppress an
+    # "everywhere is overcast" verdict for the other nine.
+    beams = sorted(e["weather"]["dni"] for e in rows
+                   if e["weather"] and e["weather"]["dni"] is not None)
+    median_beam = beams[len(beams) // 2] if beams else None
+
+    print()
+    if not beams:
+        print("  No weather available - this date is beyond the forecast")
+        print("  horizon. Geometry only. Cannot tell you whether the sun")
+        print("  will actually be out.")
+    elif not weather.shadow_matters(median_beam):
+        lit = sum(1 for d in beams if weather.shadow_matters(d))
+        print(f"  MOSTLY OVERCAST - median direct beam {median_beam:.0f} W/m2, "
+              f"with {lit} of {len(beams)}")
+        print("  trailheads seeing any sun. Terrain shadow makes little")
+        print("  difference today - choose on distance or drive time instead.")
+        print("  (Direct beam is close to binary and moves fast; the geometry")
+        print("  above is stable, this is not.)")
+    else:
+        sample = next(e["weather"] for e in rows if e["weather"])
+        print(f"  Median direct beam {median_beam:.0f} W/m2. "
+              f"Forecast confidence: {sample['confidence']} "
+              f"({weather.days_ahead(start)} days ahead, "
+              f"model {sample['model']})")
 
 
 if __name__ == "__main__":
     dem, grid_position = load_terrain()
     walks = load_walks()
 
-    for date, start_clock, label in SCENARIOS:
-        start = pd.Timestamp(f"{date} {start_clock}", tz=TIMEZONE)
+    check_coverage(dem, grid_position, walks)
 
-        print("=" * 78)
-        print(label)
-        print()
-        print(f"  {'Walk':20} {'Takes':>6}  {'Eval at':>7}  "
-              f"{'Start':>6} {'MIDPOINT':>9} {'End':>6}   Points")
-        print("  " + "-" * 74)
+    # A real query, inside the forecast horizon - geometry plus weather.
+    soon = pd.Timestamp.now(tz=TIMEZONE).normalize() + pd.Timedelta(days=3)
+    report(dem, grid_position, walks,
+           soon.replace(hour=11),
+           f"THREE DAYS OUT - {soon:%A %d %B}, setting off at 11:00")
 
-        rows = []
-        for walk in walks:
-            begin, middle, finish, hours = walk_times(
-                start, walk["distance_km"], walk["ascent_m"]
-            )
+    # The midwinter demonstration. Beyond the forecast, so geometry only.
+    report(dem, grid_position, walks,
+           pd.Timestamp("2026-12-21 11:00", tz=TIMEZONE),
+           "MIDWINTER - 21 December, setting off at 11:00 (geometry only)")
 
-            if walk["points"] is None:
-                rows.append((None, walk, format_duration(hours), middle,
-                             None, None, None, 0))
-                continue
-
-            at_start, _ = fraction_in_sun(
-                dem, grid_position, walk["points"], begin)
-            at_middle, counted = fraction_in_sun(
-                dem, grid_position, walk["points"], middle)
-            at_end, _ = fraction_in_sun(
-                dem, grid_position, walk["points"], finish)
-
-            rows.append((at_middle, walk, format_duration(hours), middle,
-                         at_start, at_middle, at_end, counted))
-
-        # Rank on the midpoint - the headline figure. Walks with no
-        # geometry sort to the bottom.
-        rows.sort(key=lambda r: -1 if r[0] is None else -r[0])
-
-        for headline, walk, takes, middle, a, b, c, counted in rows:
-            if walk["points"] is None:
-                print(f"  {walk['slug']:20} {takes:>6}  {middle:%H:%M}    "
-                      f"    no trail geometry yet - see docs/09")
-                continue
-
-            print(f"  {walk['slug']:20} {takes:>6}  {middle:%H:%M}  "
-                  f"{percent(a)} {percent(b):>9} {percent(c)}   {counted:4}")
-
-        print()
-        print("  Ranked on the midpoint. Start and end show how much changes")
-        print("  while you are out - they are three instants, not a simulation.")
-
-    print("=" * 78)
+    print("=" * 92)
+    print("\nRanked on the midpoint. Geometry and weather are shown separately")
+    print("and never blended - a single score would hide which one mattered.")

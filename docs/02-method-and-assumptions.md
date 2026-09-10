@@ -178,6 +178,24 @@ Fetch hourly forecast for the route centre at the representative hour. **Direct 
 
 `[verify]` these bands against observation. Starting points, not findings.
 
+### ⚠ Measured 10 September 2026: direct beam is close to binary
+
+Across ten trailheads and five hours of forecast, **every DNI reading fell either in 0–100 or in 270–512 W/m². Almost nothing in between.**
+
+That is physical, not a data problem. The sun's disc is either occluded or it is not; diffuse radiation varies smoothly, direct beam does not. Consequences:
+
+1. **The four bands above over-resolve a bimodal quantity.** "Hazy sun" and "broken cloud" will rarely be the answer. Two states plus a boundary would describe it better.
+2. **Never use `any()` to decide whether cloud matters.** One sharp cloud edge over one trailhead returned 509 while nine others sat near zero, which suppressed a correct "everywhere is overcast" verdict. **Test the median.**
+3. **The weather half of this tool is far less stable than the geometry half.** A single location swung 14 → 512 → 276 W/m² over three consecutive hours. The terrain never moves. This is the strongest argument yet for reporting the two separately and never blending them — one is a near-certainty, the other is a coin toss with a forecast attached.
+
+### ⚠ Terrain model coverage
+
+`sun_on_walks.py` now warns when a walk sits closer to the DEM edge than the ray march reaches. On the first ten-walk run, **8 of 10 were affected** — nearest edges of 12–28 km against a 30 km design distance.
+
+Bounded, though. A mountain at distance `d` blocks a sun at elevation `θ` only if it rises `d·tan(θ)` above you. At 12 km and 7° that is 1,473 m — achievable here. At 12 km and 15° it is 3,215 m — not. **So truncation affects low-sun figures (winter mornings and evenings) and leaves midday sound.**
+
+The dangerous part was never the missing points, which are skipped visibly. It was that a point *inside* the model still gets a confident answer from rays that stopped early. Nothing complains. Hence the explicit check.
+
 **The short-circuit is a feature.** When DNI is low, say so plainly: *"Overcast across all options — no walk will be sunny today. Ranking on distance and drive time."*
 
 ### Why the two factors must not be blended
