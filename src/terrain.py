@@ -69,3 +69,61 @@ def horizon_angle(dem, row, col, azimuth_deg, cell_size_m,
 def is_sunlit(horizon_deg, solar_elevation_deg):
     """True if the sun clears the skyline in that direction."""
     return solar_elevation_deg > horizon_deg
+
+
+def horizon_profile(dem, row, col, cell_size_m, azimuths,
+                    max_distance_m=30_000):
+    """
+    The skyline in every direction at once - the whole panorama from a point.
+
+    Same calculation as horizon_angle, but marching all bearings together
+    with numpy instead of one at a time in a Python loop. For 180 bearings
+    that is roughly a hundredfold faster, which is the difference between a
+    precompute that takes minutes and one that takes hours.
+
+    Speed is the entire reason this exists. horizon_angle stays as the
+    readable reference implementation, and test_terrain.py checks the two
+    agree - a fast path that quietly disagrees with the tested path would
+    be worse than no fast path at all.
+
+    Returns one angle in degrees per azimuth, in the order given.
+    """
+    import numpy as np
+
+    n_rows, n_cols = dem.shape
+    observer_height = dem[row, col]
+
+    radians = np.radians(np.asarray(azimuths, dtype=float))
+    step_col = np.sin(radians)
+    step_row = -np.cos(radians)
+
+    highest = np.full(len(radians), -90.0)
+
+    distance = cell_size_m
+    while distance <= max_distance_m:
+        cells_out = distance / cell_size_m
+        r = np.rint(row + step_row * cells_out).astype(int)
+        c = np.rint(col + step_col * cells_out).astype(int)
+
+        inside = (r >= 0) & (r < n_rows) & (c >= 0) & (c < n_cols)
+        if not inside.any():
+            break
+
+        drop = distance ** 2 / (2 * EFFECTIVE_RADIUS_M)
+        heights = dem[np.clip(r, 0, n_rows - 1), np.clip(c, 0, n_cols - 1)]
+        rise = heights - observer_height - drop
+
+        angle = np.degrees(np.arctan2(rise, distance))
+        highest = np.where(inside, np.maximum(highest, angle), highest)
+
+        distance += cell_size_m
+
+    return highest
+
+
+def horizon_towards(profile, azimuths, azimuth):
+    """Look up the skyline in the direction nearest to `azimuth`."""
+    import numpy as np
+
+    difference = np.abs(((np.asarray(azimuths) - azimuth + 180) % 360) - 180)
+    return float(profile[int(np.argmin(difference))])

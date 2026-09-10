@@ -11,7 +11,7 @@ import math
 
 import numpy as np
 
-from src.terrain import horizon_angle, is_sunlit
+from src.terrain import horizon_angle, horizon_profile, is_sunlit
 
 CELL_SIZE_M = 30
 CENTRE = 100          # observer sits at row 100, col 100
@@ -75,3 +75,26 @@ def test_sun_above_and_below_the_skyline():
     """The whole project, in four lines."""
     assert is_sunlit(EXPECTED_WALL_ANGLE, 20.0)      # sun clears the wall
     assert not is_sunlit(EXPECTED_WALL_ANGLE, 15.0)  # wall blocks the sun
+
+
+def test_fast_path_agrees_with_slow_path():
+    """
+    The vectorised profile must match the readable one, bearing for bearing.
+
+    horizon_profile exists only to be fast enough to precompute. If it ever
+    disagrees with horizon_angle, every number the app shows is quietly
+    wrong while the original tests stay green - so this is the test that
+    keeps the optimisation honest.
+    """
+    dem = flat_terrain()
+    dem[:, CENTRE + WALL_DISTANCE_CELLS] = WALL_HEIGHT_M
+    dem[CENTRE - WALL_DISTANCE_CELLS, :] = WALL_HEIGHT_M * 0.5
+
+    azimuths = list(range(0, 360, 15))
+    fast = horizon_profile(dem, CENTRE, CENTRE, CELL_SIZE_M, azimuths)
+
+    for index, azimuth in enumerate(azimuths):
+        slow = horizon_angle(dem, CENTRE, CENTRE, azimuth, CELL_SIZE_M)
+        assert abs(fast[index] - slow) < 0.01, (
+            f"azimuth {azimuth}: fast {fast[index]:.3f} vs slow {slow:.3f}"
+        )
