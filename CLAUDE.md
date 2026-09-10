@@ -70,7 +70,8 @@ Sun-Walks/
     08-three-session-plan.md        ← ⚠ START HERE. What actually fits in 6–9 hours
     09-candidate-walks.md           ← the five walks, sourced, with roles and [verify] flags
     10-session-1-walkthrough.md     ← ✅ DONE 9 Sep 2026. Toolchain setup + friction log
-    11-session-2-walkthrough.md     ← ⚠ NEXT ACTION. The ray march and its tests
+    11-session-2-walkthrough.md     ← the ray march and its tests
+    12-verification-register.md     ← ⚠ NEXT ACTION. Everything asserted but unchecked
 ```
 
 ## Progress
