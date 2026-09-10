@@ -106,7 +106,9 @@ Refraction lifts the sun by ~0.5° near the horizon — about its own diameter �
 
 If θ_sun ≤ 0 it is night or twilight — return that and stop.
 
-**Timezone:** `America/Edmonton`. MST = UTC−7, MDT = UTC−6. Alberta observes DST (permanent-DST referendum rejected 2021) `[verify]`. Compute in UTC, display in local, convert once at the end.
+**Timezone:** `America/Edmonton`. **Alberta is on permanent UTC−6 from November 2026** under the Official Time Act of 18 June 2026 — no more clock changes. Use a current `tzdata` and never hard-code an offset; the rule has changed twice in five years. Compute in UTC, display in local, convert once at the end. Detail in `01-data-sources.md` §D.
+
+**This shifts the winter day later than intuition suggests:** solstice sunrise 09:46, solar noon 13:40, sunset 17:30. Winter queries before 10:00 return darkness.
 
 ---
 

@@ -92,7 +92,7 @@ Canadian dataset and regulation details carry more uncertainty than the UK equiv
 - Kananaskis Conservation Pass and Parks Canada pass — pricing and exact boundaries
 - Seasonal closure windows, including Kananaskis winter wildlife closures
 - Elk calving and rut advisory zones and dates
-- Whether Alberta still observes DST — the 2021 permanent-DST referendum was rejected, but this has been politically live
+- ~~Whether Alberta still observes DST~~ — **RESOLVED 10 Sep 2026.** The Official Time Act (18 June 2026) puts Alberta on permanent UTC−6 from November 2026. The 2021 referendum result has been reversed by legislation. Winter solstice: sunrise 09:46, sunset 17:30. See `01-data-sources.md` §D
 
 **Data availability and format**
 - Parks Canada trail layer on open.canada.ca — existence, format, currency

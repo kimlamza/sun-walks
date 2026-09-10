@@ -78,6 +78,47 @@ It is also the only one of the five in Banff National Park, which exercises the 
 
 ---
 
+---
+
+## ⚠ Measured results, 10 September 2026
+
+Trail geometry from OpenStreetMap, terrain from Copernicus GLO-30, per-point ray march at the sun's actual bearing.
+
+**Percentage of trail points with a clear line to the sun:**
+
+| Walk | 21 Dec, 10:30 | 21 Dec, 15:30 | 21 Jun, 09:00 | 21 Jun, 14:00 |
+|---|---|---|---|---|
+| Montane Traverse | 63% | **100%** | 100% | 100% |
+| Tunnel Mountain | 0% | 69% | 95% | 100% |
+| Grotto Canyon | 18% | 28% | 89% | 100% |
+| Grassi Lakes | **0%** | **4%** | 100% | 100% |
+
+### What held
+
+**Montane Traverse is the winter walk, decisively.** **Grassi Lakes gets essentially no direct sun all winter** — consistent with a measured 41.7° skyline beneath Ha Ling. **Grotto Canyon is deeply shaded in winter.** All three aspect inferences confirmed.
+
+### What did not hold — and both errors were mine, not the model's
+
+**1. Tunnel Mountain is not a valid control.** I described it as "a standalone hill, so its horizon is low in every direction… if it does not read ~100% sunlit, the model is broken." It reads 0% at 10:30 on the solstice, and the model is right.
+
+Tunnel Mountain is a **1,690 m hill inside a valley** between Rundle (2,949 m) and Sulphur (2,451 m). Its horizon is not low. At 10:30 the sun sits 4.6° up on bearing 137°, where Rundle's ridge subtends roughly 22°. Compounding it, the trail is mostly switchbacking *flanks*, not summit.
+
+**No real walk can serve as a control in the Rockies.** The flat-plane case in `tests/test_terrain.py` already is one, and is better — it cannot be confounded by geography.
+
+**2. There is no morning/afternoon swap in winter.** The predicted east/west pair reversing between 09:00 and 15:00 does not happen: Montane wins both.
+
+**In midwinter at 51°N the sun's entire daily arc spans roughly 128° to 232°** — about 100° of azimuth, all southern. The sun rises south-east and sets south-west; there is no morning east sun in December. A north-east-facing trail is shaded whatever the hour. In midsummer the arc runs roughly 50° to 310°, over 260°, and Grassi Lakes duly reaches 100% at 09:00.
+
+**So: in winter, aspect dominates and time of day barely matters. In summer, time of day dominates.** The swap prediction was UK-latitude reasoning applied where the winter sun hardly moves.
+
+**3. Summer is uninteresting.** Midsummer afternoon returns 100% for every walk — the sun at 62° clears everything. This is a winter instrument, which settles Q3 in `05-open-questions.md`.
+
+### Still outstanding
+
+**Quarry Lake is not in OpenStreetMap** under that name as a walkable path — it is likely mapped as water with unnamed paths around it. Needs fetching by proximity to coordinates rather than by name.
+
+---
+
 ## What this set covers
 
 | Dimension | Spread achieved |

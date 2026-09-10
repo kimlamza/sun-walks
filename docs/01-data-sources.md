@@ -158,7 +158,20 @@ Use **`pvlib`** (NREL SPA algorithm, ~0.0003°) or `astral` (~0.01°). Both are 
 
 Outputs: **azimuth** (bearing, degrees clockwise from north) and **apparent elevation** (degrees above horizon, including atmospheric refraction).
 
-**The timezone trap — different from the UK draft.** Canmore is Mountain Time: **MST = UTC−7, MDT = UTC−6**. Alberta *does* observe daylight saving — the 2021 provincial referendum on moving to permanent DST was rejected. `[verify]` this has not since changed; it has been politically live.
+### ⚠ The timezone trap — resolved 10 September 2026
+
+**Alberta no longer observes daylight saving.** The **Official Time Act**, passed **18 June 2026**, moves the province to permanent **UTC−6** — "Alberta Time" — effective **November 2026**. Clocks did not go back on 1 November 2026.
+
+Historically Alberta ran MST (UTC−7) in winter and MDT (UTC−6) in summer, and a 2021 referendum narrowly *rejected* permanent daylight time (50.2% for keeping the changes). That decision has since been reversed by legislation.
+
+**Practical consequences, and they are not cosmetic:**
+
+- `America/Edmonton` with a current `tzdata` handles this correctly. **Do not hard-code offsets** — this is the second time in five years the rule has changed
+- **Winter daylight now falls much later by the clock.** On the solstice, sunrise is **09:46** and sunset **17:30**, with solar noon at **13:40**. A 09:00 winter query returns darkness
+- The usable winter walking window is roughly **10:00 to 17:00**, not 08:00 to 16:00
+- Keep `tzdata` current. `pip install --upgrade tzdata` if winter results ever look an hour out
+
+**How this was caught:** the model reported the sun 6.5° below the horizon at 09:00 on 21 December. A hand calculation assuming MST predicted +1°. The discrepancy looked exactly like a daylight-saving bug — but the timezone database was right and the hand calculation was wrong. Worth recording as a case where the disagreement was real and the model won.
 
 **Rule: store and compute everything in UTC. Convert to local only at display, at the very last step.** Use `zoneinfo` with **`America/Edmonton`**. Never do the offset arithmetic yourself.
 
