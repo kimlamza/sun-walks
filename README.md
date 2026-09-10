@@ -91,7 +91,8 @@ Week-one scope is **five walks**, chosen as the minimum contrast set: a shaded v
 | `docs/07-validation-without-local-knowledge.md` | How to validate a shadow model having never been there |
 | `docs/08-three-session-plan.md` | **Start here.** What actually fits in 6–9 hours |
 | `docs/09-candidate-walks.md` | The five proposed walks, sourced, with roles and open checks |
-| `docs/10-session-1-walkthrough.md` | **Next action.** Step-by-step toolchain setup, from zero |
+| `docs/10-session-1-walkthrough.md` | Toolchain setup from zero — completed 9 Sep 2026, with a friction log |
+| `docs/11-session-2-walkthrough.md` | **Next action.** The ray march, and the tests that prove it correct |
 
 ## Build constraints
 

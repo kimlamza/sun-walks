@@ -69,8 +69,15 @@ Sun-Walks/
     07-validation-without-local-knowledge.md  ← how to validate having never been there
     08-three-session-plan.md        ← ⚠ START HERE. What actually fits in 6–9 hours
     09-candidate-walks.md           ← the five walks, sourced, with roles and [verify] flags
-    10-session-1-walkthrough.md     ← ⚠ NEXT ACTION. Step-by-step toolchain setup
+    10-session-1-walkthrough.md     ← ✅ DONE 9 Sep 2026. Toolchain setup + friction log
+    11-session-2-walkthrough.md     ← ⚠ NEXT ACTION. The ray march and its tests
 ```
+
+## Progress
+
+**Session 1 complete (9 September 2026).** Python 3.13.15 and Git installed; repo live at `github.com/kimlamza/sun-walks` (private); `src/sun.py` computes solar position for Canmore; **validation test A2 passed** — computed sunrise/sunset matched timeanddate.com to within 1 and 3 minutes, confirming solar position contributes negligible error to the project.
+
+**Known loose end:** Cursor opens as "Cursor Agent" with no editor view, file tree or icon strip. Session 1 was completed in plain PowerShell instead. Timeboxed retry at the start of session 2 — `Ctrl+Shift+E`, then `Ctrl+Shift+P` → "View: Show Explorer". Do not let this consume a block.
 
 **Kim is a complete beginner and has asked for step-by-step instruction.** Give exact commands, expected output, and a checkpoint after each block. Explain what a thing *is* before telling him to type it. Do not assume any prior knowledge of terminals, Git, Python or file paths — and do not skip the "why", since the stated purpose of the project is to understand the code rather than to have it produced.
 
