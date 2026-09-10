@@ -34,13 +34,30 @@ A summit 1,640 m above you and 4 km away sits at **atan(1640/4000) = 22.3°**. S
 
 So the southern skyline from much of the Canmore valley floor is roughly **20–25°**, against a winter noon sun of **15.5°**.
 
-**Estimated consequence: the midday sun does not clear the south ridge from roughly early November to early February.** Solar noon elevation reaches 22° when the solar declination is about −16.9°, which happens around the first week of November and the first week of February.
+### ⚠ Superseded by measurement, 10 September 2026
 
-Three points about that estimate:
+The above reasoning was **too crude, and the estimate of a 20–25° representative skyline was too aggressive.** Measured against a Copernicus GLO-30 DEM at 2° azimuth resolution:
 
-1. **It is a geometric estimate, not a measurement.** It assumes a representative horizon angle. The real answer varies enormously across town and across the valley — which is precisely what the tool computes properly, per point.
-2. **`[verify]` it against your own experience first.** You live there. If it does not match what you observe, the model is wrong, and that is worth knowing before anything is built on it.
-3. **If it is roughly right, it is the strongest validation target available** — a prediction specific enough to be falsified.
+| Location | Ground | Highest southern skyline | Hours of direct sun, 08:00–16:00, 21 Dec |
+|---|---|---|---|
+| Benchlands / Montane | 1,620 m | 8.4° | **6 of 9** |
+| Canmore town centre | 1,313 m | 16.7° | **4 of 9** |
+| Quarry Lake | 1,405 m | 31.2° | **0 of 9** |
+| Grotto Canyon area `[verify position]` | 1,623 m | 34.8° | **0 of 9** |
+| Grassi Lakes area | 1,442 m | 41.7° | **0 of 9** |
+
+**Two methodological errors are worth recording, because both were invisible until measured:**
+
+1. **Coarse azimuth sampling understates the skyline.** At 22° steps, town centre's southern maximum read 14.8°; at 2° steps it reads 16.7°. The ray march was stepping over the ridge crest. **Sample at 2° or finer.**
+2. **"Highest southern skyline versus noon sun elevation" is the wrong comparison entirely** — the two peaks occur at *different bearings*. Town centre's 16.7° maximum sits where the sun never reaches that height; at 14:00 the sun is at 15.4° on bearing 185°, where the skyline is only 10.3°, so it is sunlit. **The only valid test is per-azimuth, hour by hour.**
+
+**What survives:** the effect is real and it is large, but it is a *location* phenomenon rather than a *valley* one. Quarry Lake and the Benchlands are 4 km apart; one gets no direct sun at all on the solstice, the other gets six hours. There is no useful blanket statement about "the valley floor" — which is the case for computing it per point rather than reasoning about it.
+
+**What this validates:** every aspect prediction in `09-candidate-walks.md` — all flagged `[unverified inference]` — came out correct, including that Quarry Lake would be shaded despite being flat, open and treeless.
+
+**Sanity checks passed:** DEM maximum 3,555 m (Mount Assiniboine sits inside the bounding box, so the terrain is not over-smoothed — the failure mode that would have invalidated everything). Modelled angles agree with hand geometry at all five points: Grassi Lakes `atan(965/1000) = 44°` against 41.7° modelled; Quarry Lake `atan(1000/1700) = 30.5°` against 31.2°.
+
+*Original estimate, retained for the record: a representative 20–25° skyline would put the noon sun below the ridge from roughly early November to early February. Solar noon reaches 22° when declination is about −16.9°, around the first week of November and of February. The 22° figure was too high for the points actually measured.*
 
 ---
 
