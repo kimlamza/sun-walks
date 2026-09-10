@@ -123,9 +123,21 @@ It peaks in the middle and falls again — and the fall begins *before* solar no
 
 Worth keeping as the clearest demonstration that the model is computing something rather than approximating intuition.
 
-### Still outstanding
+### Quarry Lake — resolved, and it corrects an earlier error
 
-**Quarry Lake is not in OpenStreetMap** under that name as a walkable path — it is likely mapped as water with unnamed paths around it. Needs fetching by proximity to coordinates rather than by name.
+**There is no way in OpenStreetMap called "Quarry Lake Trail."** There is a *lake* tagged `natural=water`, with paths around it that are unnamed or named something else. That is a normal shape for OSM: named long trails are well covered, the short loop round a local park usually is not, because nobody thinks of it as having a name.
+
+Fixed by `fetch_quarry_lake.py`, which asks a different question — *what walkable paths lie within 120 m of the water body called Quarry Lake?* Overpass's `around` filter can take a previously matched set as its origin, so it is still one request.
+
+Radius matters: at 250 m it pulled in Powerline Trail, Fun Forrest and Peaks Drive — the wider Canmore network passing nearby. `around` measures from the **shoreline**, not the centre, so it reaches further than it sounds. At 120 m: 26 ways, 226 points.
+
+**The correction.** `check_winter_sun.py` reported Quarry Lake getting **0 of 9 hours** of sun on the solstice. That came from a hand-guessed coordinate (51.0706, −115.3706) sitting hard against the hillside. The real centroid is **51.0743, −115.3725**, about 400 m north, where the lake and meadow are far more open.
+
+Measured properly, Quarry Lake reads **21% → 28% → 74%** across a 42-minute winter walk from 11:00. Still much shadier than Montane at 100%, but **"flat, open, in town, and gets no sun at all" was overstated.**
+
+**Second time a hand-guessed coordinate produced a confidently wrong answer** — the first put Grotto Canyon 300 m up a hillside. Both fixed by surveyed data. Guessed coordinates are now treated as a known failure mode, not an inconvenience.
+
+**And a finding in its own right:** 21% to 74% in 42 minutes, as the sun climbs from roughly 7.5° to 10.5°. Three degrees of elevation flips half the area. Same extreme sensitivity as town centre landing within a degree of the December threshold — and the strongest argument for computing this rather than estimating it.
 
 ---
 
