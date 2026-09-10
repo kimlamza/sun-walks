@@ -133,6 +133,8 @@ Also never fetched: **ATES avalanche terrain ratings** and **Avalanche Canada bu
 | Why did HRDPS return nulls? | It only runs ~48 hours ahead and answers 200 OK with empty data beyond that. Now falls back to `gem_seamless` |
 | Does the vectorised horizon match the scalar one? | Yes, to within 0.01° at every bearing. Asserted by test |
 
+**Retired scripts.** `check_horizon.py` (superseded by `prepare_dem.py`), `check_winter_sun.py` (superseded by `precompute_horizons.py` and the app), and `check_dst.py` (converted into `tests/test_sun.py`). All three were one-off diagnostics whose findings mattered more than the scripts did — the pattern worth keeping is that **a finding worth remembering belongs in a test, not in a script somebody has to remember to run.** Ten tests now pass.
+
 ---
 
 ## What I need from you, in order

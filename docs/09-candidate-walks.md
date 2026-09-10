@@ -131,7 +131,7 @@ Fixed by `fetch_quarry_lake.py`, which asks a different question — *what walka
 
 Radius matters: at 250 m it pulled in Powerline Trail, Fun Forrest and Peaks Drive — the wider Canmore network passing nearby. `around` measures from the **shoreline**, not the centre, so it reaches further than it sounds. At 120 m: 26 ways, 226 points.
 
-**The correction.** `check_winter_sun.py` reported Quarry Lake getting **0 of 9 hours** of sun on the solstice. That came from a hand-guessed coordinate (51.0706, −115.3706) sitting hard against the hillside. The real centroid is **51.0743, −115.3725**, about 400 m north, where the lake and meadow are far more open.
+**The correction.** `check_winter_sun.py` *(since retired — its per-point horizon profiles are now computed for every trail point by `precompute_horizons.py`)* reported Quarry Lake getting **0 of 9 hours** of sun on the solstice. That came from a hand-guessed coordinate (51.0706, −115.3706) sitting hard against the hillside. The real centroid is **51.0743, −115.3725**, about 400 m north, where the lake and meadow are far more open.
 
 Measured properly, Quarry Lake reads **21% → 28% → 74%** across a 42-minute winter walk from 11:00. Still much shadier than Montane at 100%, but **"flat, open, in town, and gets no sun at all" was overstated.**
 
