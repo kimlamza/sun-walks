@@ -1,27 +1,30 @@
 """
-What fraction of each walk is in direct sunlight, at a given date and time?
+What fraction of each walk is in direct sunlight, if you set off at a
+given time?
 
-This is the product, in miniature. For each trail:
+This is the product in miniature. For each walk:
 
-  - take the points OpenStreetMap gave us
-  - work out where the sun is at that moment
-  - for each point, ray march towards the sun and see if terrain blocks it
-  - report the percentage that comes out sunlit
+  - read its distance and ascent from data/walks.csv
+  - estimate how long it takes (Naismith, see src/duration.py)
+  - work out the representative time: start plus half the duration
+  - find where the sun is at that moment
+  - ray march from each trail point towards it, and count how many have a
+    clear line
 
-Two simplifications, both deliberate and both documented in
-docs/02-method-and-assumptions.md:
+The headline figure is the midpoint. Start and end are shown alongside,
+because the measured results made the case: Montane Traverse runs 63%
+sunlit at 10:30 and 100% at 15:30, so one number hides a lot on a long
+winter walk. That is three instants, not a simulation - the design
+constraint in docs/02 section 1a still holds.
 
-  1. One instant, not the whole walk. Section 1a.
-  2. No separate self-shading calculation. Section 3a treats "the slope
-     faces away from the sun" as a distinct test, but on a continuous
-     slope the ray march already catches it - if the ground rises away
-     from you towards the sun, the very first step uphill returns a large
-     horizon angle. The two only diverge near sharp breaks in slope, at
-     scales a 30 m terrain model cannot resolve anyway.
+Alberta is on permanent UTC-6 from November 2026 (Official Time Act,
+18 June 2026), so on the solstice sunrise is 09:46 and sunset 17:30.
+Winter start times before 10:00 are simply darkness.
 
 Run it with:  python sun_on_walks.py
 """
 
+import csv
 import json
 from pathlib import Path
 
@@ -30,33 +33,26 @@ import pvlib
 import rasterio
 from pyproj import Transformer
 
+from src.duration import format_duration, walk_times
 from src.terrain import horizon_angle, is_sunlit
 
 PROJECTED_DEM = "data/dem/canmore_utm.tif"
 ROUTES_DIR = Path("data/routes")
+WALKS_CSV = Path("data/walks.csv")
+
 LATLON = "EPSG:4326"
 UTM_11N = "EPSG:26911"
 CELL_SIZE_M = 30
 TIMEZONE = "America/Edmonton"
 
-# The demonstration: a morning query and an afternoon one, in midwinter,
-# when the effect is strongest.
-#
-# Note the winter times. Alberta moved to permanent UTC-6 ("Alberta Time")
-# under the Official Time Act of 18 June 2026, effective November 2026 - so
-# clocks no longer go back. On the solstice that puts sunrise at 09:46 and
-# sunset at 17:30 by the clock. A 09:00 winter query is simply darkness, so
-# the useful window is roughly 10:00 to 17:00.
-WHEN = [
-    ("2026-12-21 10:30", "Midwinter morning"),
-    ("2026-12-21 15:30", "Midwinter afternoon"),
-    ("2026-06-21 09:00", "Midsummer morning"),
-    ("2026-06-21 14:00", "Midsummer afternoon"),
-]
-
-# Ray marching every point is slow in plain Python, and neighbouring points
-# on a trail give almost identical answers. Every 3rd point is plenty.
+# Neighbouring points on a trail give almost identical answers, and ray
+# marching every one is slow in plain Python. Every 3rd is plenty.
 SAMPLE_EVERY = 3
+
+SCENARIOS = [
+    ("2026-12-21", "11:00", "Midwinter, setting off at 11:00"),
+    ("2026-06-21", "09:00", "Midsummer, setting off at 09:00"),
+]
 
 
 def load_terrain():
@@ -76,18 +72,26 @@ def load_terrain():
         return dem, grid_position
 
 
-def load_routes():
-    routes = []
-    for path in sorted(ROUTES_DIR.glob("*.json")):
-        routes.append(json.loads(path.read_text()))
-    return routes
+def load_walks():
+    """Metadata for every walk, with trail geometry attached where we have it."""
+    walks = []
+    with WALKS_CSV.open() as handle:
+        for row in csv.DictReader(handle):
+            row["distance_km"] = float(row["distance_km"])
+            row["ascent_m"] = float(row["ascent_m"])
+
+            route_file = ROUTES_DIR / f"{row['slug']}.json"
+            if route_file.exists():
+                row["points"] = json.loads(route_file.read_text())["points"]
+            else:
+                row["points"] = None
+            walks.append(row)
+    return walks
 
 
 def sun_position(lat, lon, height_m, when):
-    """Solar elevation and bearing at one moment, at one place."""
     location = pvlib.location.Location(lat, lon, tz=TIMEZONE, altitude=height_m)
-    times = pd.DatetimeIndex([when]).tz_localize(TIMEZONE)
-    position = location.get_solarposition(times)
+    position = location.get_solarposition(pd.DatetimeIndex([when]))
     return (
         float(position["apparent_elevation"].iloc[0]),
         float(position["azimuth"].iloc[0]),
@@ -95,7 +99,7 @@ def sun_position(lat, lon, height_m, when):
 
 
 def fraction_in_sun(dem, grid_position, points, when):
-    """Percentage of sampled points with a clear line to the sun."""
+    """Percentage of sampled trail points with a clear line to the sun."""
     sampled = points[::SAMPLE_EVERY]
 
     # The sun moves negligibly across a few kilometres of trail, so one
@@ -104,60 +108,77 @@ def fraction_in_sun(dem, grid_position, points, when):
     elevation, azimuth = sun_position(mid_lat, mid_lon, 1400, when)
 
     if elevation <= 0:
-        return None, elevation, azimuth, 0
+        return None, 0
 
-    lit = 0
-    counted = 0
+    lit = counted = 0
     for lat, lon in sampled:
         position = grid_position(lat, lon)
         if position is None:
-            continue          # outside the terrain model
+            continue                      # outside the terrain model
         row, col = position
         skyline = horizon_angle(dem, row, col, azimuth, CELL_SIZE_M)
         lit += is_sunlit(skyline, elevation)
         counted += 1
 
     if counted == 0:
-        return None, elevation, azimuth, 0
+        return None, 0
+    return 100 * lit / counted, counted
 
-    return 100 * lit / counted, elevation, azimuth, counted
+
+def percent(value):
+    return "  dark" if value is None else f"{value:5.0f}%"
 
 
 if __name__ == "__main__":
     dem, grid_position = load_terrain()
-    routes = load_routes()
+    walks = load_walks()
 
-    if not routes:
-        raise SystemExit("No routes found. Run fetch_trails.py first.")
+    for date, start_clock, label in SCENARIOS:
+        start = pd.Timestamp(f"{date} {start_clock}", tz=TIMEZONE)
 
-    for when, label in WHEN:
-        print("=" * 70)
-        print(f"{label}  -  {when}")
+        print("=" * 78)
+        print(label)
+        print()
+        print(f"  {'Walk':20} {'Takes':>6}  {'Eval at':>7}  "
+              f"{'Start':>6} {'MIDPOINT':>9} {'End':>6}   Points")
+        print("  " + "-" * 74)
 
-        results = []
-        for route in routes:
-            percent, elevation, azimuth, counted = fraction_in_sun(
-                dem, grid_position, route["points"], when
+        rows = []
+        for walk in walks:
+            begin, middle, finish, hours = walk_times(
+                start, walk["distance_km"], walk["ascent_m"]
             )
-            results.append((percent, route, counted))
 
-        if results[0][0] is None:
-            print(f"  Sun is below the horizon ({elevation:.1f} deg). "
-                  "Nothing to compute.")
-            continue
+            if walk["points"] is None:
+                rows.append((None, walk, format_duration(hours), middle,
+                             None, None, None, 0))
+                continue
 
-        print(f"  Sun: {elevation:.1f} deg above horizon, "
-              f"bearing {azimuth:.0f} deg\n")
-        print(f"  {'Walk':22} {'In sun':>8}   {'Points':>6}   Role")
+            at_start, _ = fraction_in_sun(
+                dem, grid_position, walk["points"], begin)
+            at_middle, counted = fraction_in_sun(
+                dem, grid_position, walk["points"], middle)
+            at_end, _ = fraction_in_sun(
+                dem, grid_position, walk["points"], finish)
 
-        for percent, route, counted in sorted(
-            results, key=lambda r: -(r[0] or 0)
-        ):
-            shown = "n/a" if percent is None else f"{percent:5.0f}%"
-            print(f"  {route['slug']:22} {shown:>8}   {counted:6}   "
-                  f"{route['role']}")
+            rows.append((at_middle, walk, format_duration(hours), middle,
+                         at_start, at_middle, at_end, counted))
 
-    print("=" * 70)
-    print("\nThe result to look for: walks changing places between the")
-    print("morning and afternoon rows. If the ranking is identical at")
-    print("09:00 and 14:00, the model is not doing any real work.")
+        # Rank on the midpoint - the headline figure. Walks with no
+        # geometry sort to the bottom.
+        rows.sort(key=lambda r: -1 if r[0] is None else -r[0])
+
+        for headline, walk, takes, middle, a, b, c, counted in rows:
+            if walk["points"] is None:
+                print(f"  {walk['slug']:20} {takes:>6}  {middle:%H:%M}    "
+                      f"    no trail geometry yet - see docs/09")
+                continue
+
+            print(f"  {walk['slug']:20} {takes:>6}  {middle:%H:%M}  "
+                  f"{percent(a)} {percent(b):>9} {percent(c)}   {counted:4}")
+
+        print()
+        print("  Ranked on the midpoint. Start and end show how much changes")
+        print("  while you are out - they are three instants, not a simulation.")
+
+    print("=" * 78)

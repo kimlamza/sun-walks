@@ -1,0 +1,6 @@
+slug,name,distance_km,ascent_m,jurisdiction,pass_required,drive_min,geometry,role
+grassi-lakes,Grassi Lakes,4.0,200,Canmore Nordic Centre PP,Kananaskis,10,osm,NE-facing - morning sun in summer
+grotto-canyon,Grotto Canyon,7.4,130,Bow Valley PP,Kananaskis,15,osm,Deep shade extreme
+montane-traverse,Montane Traverse,7.4,380,Canmore / Bow Valley Wildland,verify,5,osm,SW-facing bench - the winter walk
+tunnel-mountain,Tunnel Mountain,4.5,266,Banff National Park,Parks Canada,25,osm,Small hill among big mountains
+quarry-lake,Quarry Lake,2.5,20,Town of Canmore,none,5,MISSING,Open valley floor - high skyline

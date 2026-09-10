@@ -113,6 +113,16 @@ Tunnel Mountain is a **1,690 m hill inside a valley** between Rundle (2,949 m) a
 
 **3. Summer is uninteresting.** Midsummer afternoon returns 100% for every walk — the sun at 62° clears everything. This is a winter instrument, which settles Q3 in `05-open-questions.md`.
 
+### The best single result: Grotto Canyon is non-monotonic
+
+With duration-based timing (11:00 start, `sun_on_walks.py`), Grotto Canyon reads **29% at 11:00, 57% at 12:06, 31% at 13:12**.
+
+It peaks in the middle and falls again — and the fall begins *before* solar noon at 13:40. So it is not driven by solar elevation. It is driven by **azimuth**: the canyon admits direct light only when the sun lines up with its axis, around bearing 150°, and closes again by about 165°.
+
+**No heuristic gets this right.** "Higher sun means more sun" predicts a rise straight through to 13:40. The ray march found the real behaviour without being told anything about canyons — it simply asked, per point, whether terrain was in the way.
+
+Worth keeping as the clearest demonstration that the model is computing something rather than approximating intuition.
+
 ### Still outstanding
 
 **Quarry Lake is not in OpenStreetMap** under that name as a walkable path — it is likely mapped as water with unnamed paths around it. Needs fetching by proximity to coordinates rather than by name.
