@@ -35,10 +35,18 @@ Two are literally marked `verify` in `data/walks.csv`; the rest are inferred fro
 
 What I need, per walk: **none / Kananaskis Conservation Pass / Parks Canada pass**, and ideally the trailhead's parking area.
 
+> **✅ Montane Traverse and Cougar Creek resolved, 11 September 2026.**
+>
+> **No hiking permit is needed for the Montane Traverse.** The vehicle pass depends entirely on where you park. From the **Cougar Creek parking lot** — the usual trailhead — **no pass is required**: that is municipal land governed by the Town of Canmore and exempt from park fees. Accessing the trail via provincial park sections instead does require a Kananaskis Conservation Pass.
+>
+> Both are now recorded as `none (Cougar Creek lot)` rather than a bare "none", because the nuance is the point: the answer is a property of the car park, not of the trail. Sources: Town of Canmore, Alberta Parks trail report for Montane Traverse.
+>
+> This also resolves Cougar Creek, which shares that trailhead.
+
 | Walk | Currently recorded | Confidence |
 |---|---|---|
-| Montane Traverse | `verify` | none |
-| Cougar Creek | `verify` | none |
+| Montane Traverse | none (Cougar Creek lot) | **confirmed** |
+| Cougar Creek | none (Cougar Creek lot) | **confirmed** |
 | Goat Creek | Kananaskis | low — Spray Valley PP assumed |
 | Heart Creek | Kananaskis | low |
 | Troll Falls | Kananaskis | medium |
@@ -82,7 +90,17 @@ An 87-point spread. The Upper route climbs the headwall directly beneath the cli
 
 Now split into two rows. At the equinox they read 100% and 38%.
 
-**Two things to carry forward.** `09-candidate-walks.md` had already flagged that two Grassi routes exist and said "pick one and record which" — and it was merged anyway; a flagged risk that gets designed around is not the same as one that gets handled. And **the equinox is now a standing scenario in `sun_on_walks.py`**, because solstices saturate: walks that genuinely differ look identical at both ends of the year.
+**Two things to carry forward.** `09-candidate-walks.md` had already flagged that two Grassi routes exist and said "pick one and record which" — and it was merged anyway; a flagged risk that gets designed around is not the same as one that gets handled. And **choosing when to evaluate is itself a design decision**, because the answers saturate at both ends of the year.
+
+### 1.3b Which moment shows the model working
+
+Solstices are the worst choice for comparing walks. In December everything under a large skyline is shaded; in June the sun clears almost everything. Walks that genuinely differ look identical at both.
+
+**Mid-afternoon in February is the most discriminating**, tested across eleven walks at 15:00 — a clean spread from 100% to 0% with every walk at a distinct level. May at 15:00 puts eight of eleven at 100%.
+
+`sun_on_walks.py` now runs four scenarios: three days out (with weather), midwinter 11:00 (the headline case), and February and May afternoons.
+
+**The standout is Goat Creek in February: 100% → 50% → 0% across three hours.** You would set off in full sun and finish in complete shadow. A single midpoint figure of 50% describes neither half of that walk, and it is the clearest justification yet for reporting start, midpoint and end rather than one instant.
 
 
 

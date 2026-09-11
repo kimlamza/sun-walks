@@ -31,15 +31,20 @@ from src import weather
 from src.duration import format_duration, walk_times
 from src.evaluate import TIMEZONE, centre_of, evaluate, load_walks
 
+# Choosing scenarios is itself a design decision, because the answers
+# saturate at both ends of the year: in December everything under a big
+# skyline is shaded, in June the sun is high enough to clear almost
+# anything, and walks that genuinely differ look identical at both.
+#
+# Mid-afternoon in February and May separates them best - the sun is low
+# enough for terrain to matter and high enough that not everything is in
+# shadow. Midwinter is kept because it is the headline case the project
+# exists for: Grassi Lakes at 0% while Montane Traverse reads 100%.
 SCENARIOS = [
     (3, "11:00", "THREE DAYS OUT"),
     ("2026-12-21", "11:00", "MIDWINTER - 21 December (geometry only)"),
-    # The equinox is where terrain shadow discriminates most. At the
-    # solstices the answers saturate - everything is shaded in December,
-    # everything is lit in June - and walks that genuinely differ look
-    # identical. The two Grassi Lakes routes are 87 points apart here and
-    # indistinguishable at either solstice.
-    ("2026-03-20", "11:00", "SPRING EQUINOX - 20 March (geometry only)"),
+    ("2027-02-15", "15:00", "FEBRUARY AFTERNOON - 15 Feb (geometry only)"),
+    ("2027-05-15", "15:00", "MAY AFTERNOON - 15 May (geometry only)"),
 ]
 
 
