@@ -163,8 +163,7 @@ def warnings_for(result):
         flags.append("seasonal rules")
     if walk.get("ice_risk") == "high" and start.month in WINTER_MONTHS:
         flags.append("ice")
-    if walk.get("water") == "none":
-        flags.append("no water")
+    # Water has its own column, so it does not belong here as well.
     if swing(result) >= BIG_SWING:
         flags.append("changes a lot")
 
@@ -319,25 +318,46 @@ for result in results:
         weather_note = weather.describe_beam(result["weather"]["dni"])
 
     average = average_sun(result)
-    table.append({
-        "Walk": w["name"],
-        "Average": "—" if average is None else f"{average:.0f}%",
-        "Start": "dark" if result["start"] is None
-                 else f"{result['start']:.0f}%",
-        "Mid": "dark" if result["mid"] is None
-               else f"{result['mid']:.0f}%",
-        "End": "dark" if result["end"] is None else f"{result['end']:.0f}%",
-        "⚠": warnings_for(result),
-        "Direct beam": weather_note,
-        "km": f"{w['distance_km']:.1f}",
-        "Ascent": f"{w['ascent_m']:.0f} m",
-        "Takes": format_duration(result["hours"]),
-        "Drive": f"{w['drive_min']} min",
-        "Pass": w["pass_required"],
-        "Water": w.get("water", ""),
-    })
+    table.append([
+        # The walk itself
+        w["name"],
+        f"{w['distance_km']:.1f}",
+        f"{w['ascent_m']:.0f} m",
+        format_duration(result["hours"]),
+        # Sunshine
+        "—" if average is None else f"{average:.0f}%",
+        "dark" if result["start"] is None else f"{result['start']:.0f}%",
+        "dark" if result["mid"] is None else f"{result['mid']:.0f}%",
+        "dark" if result["end"] is None else f"{result['end']:.0f}%",
+        weather_note,
+        # Need to know
+        w["pass_required"],
+        w.get("water", ""),
+        warnings_for(result),
+    ])
 
-st.dataframe(pd.DataFrame(table), hide_index=True, width="stretch")
+# Three groups rather than twelve flat columns: what the walk is, how sunny
+# it will be, and what to know before going.
+GROUPED_COLUMNS = pd.MultiIndex.from_tuples([
+    ("The walk", "Name"),
+    ("The walk", "km"),
+    ("The walk", "Ascent"),
+    ("The walk", "Takes"),
+    ("Sunshine", "Average"),
+    ("Sunshine", "Start"),
+    ("Sunshine", "Mid"),
+    ("Sunshine", "End"),
+    ("Sunshine", "Direct beam"),
+    ("Need to know", "Pass"),
+    ("Need to know", "Water"),
+    ("Need to know", "Warnings"),
+])
+
+st.dataframe(
+    pd.DataFrame(table, columns=GROUPED_COLUMNS),
+    hide_index=True,
+    width="stretch",
+)
 
 st.caption(
     "**Ranked on the Average column** — the mean of start, midpoint and end, "
