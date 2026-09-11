@@ -12,25 +12,17 @@ precompute_horizons.py. Nothing here ray marches.
 Run it with:  streamlit run app.py
 """
 
-import csv
-import json
 from datetime import time as time_of_day
-from pathlib import Path
 
 import folium
 import numpy as np
 import pandas as pd
-import pvlib
 import streamlit as st
 from streamlit_folium import st_folium
 
 from src import weather
-from src.duration import format_duration, naismith_hours, walk_times
-from src.terrain import horizon_towards
-
-HORIZONS_DIR = Path("data/horizons")
-WALKS_CSV = Path("data/walks.csv")
-TIMEZONE = "America/Edmonton"
+from src.duration import format_duration, walk_times
+from src.evaluate import TIMEZONE, centre_of, evaluate, load_walks
 
 SUN = "#e8a33d"
 SHADE = "#7d8ca3"
@@ -39,24 +31,8 @@ SHADE = "#7d8ca3"
 # ----------------------------------------------------------------- loading
 
 @st.cache_resource
-def load_walks():
-    """Walk metadata with its precomputed skyline attached."""
-    walks = []
-    with WALKS_CSV.open() as handle:
-        for row in csv.DictReader(handle):
-            profile_file = HORIZONS_DIR / f"{row['slug']}.npz"
-            if not profile_file.exists():
-                continue
-
-            stored = np.load(profile_file)
-            row["distance_km"] = float(row["distance_km"])
-            row["ascent_m"] = float(row["ascent_m"])
-            row["drive_min"] = int(row["drive_min"])
-            row["azimuths"] = stored["azimuths"]
-            row["points"] = stored["points"]
-            row["horizons"] = stored["horizons"]
-            walks.append(row)
-    return walks
+def cached_walks():
+    return load_walks()
 
 
 @st.cache_data(ttl=3600)
@@ -69,31 +45,6 @@ def weather_at(lat, lon, when):
 
 # --------------------------------------------------------------- analysis
 
-def sun_position(lat, lon, when):
-    location = pvlib.location.Location(lat, lon, tz=TIMEZONE, altitude=1400)
-    position = location.get_solarposition(pd.DatetimeIndex([when]))
-    return (
-        float(position["apparent_elevation"].iloc[0]),
-        float(position["azimuth"].iloc[0]),
-    )
-
-
-def evaluate(walk, when):
-    """Which points of this walk see the sun at this moment?"""
-    lat, lon = walk["points"].mean(axis=0)
-    elevation, azimuth = sun_position(lat, lon, when)
-
-    if elevation <= 0:
-        return None, elevation, azimuth, None
-
-    skyline = np.array([
-        horizon_towards(profile, walk["azimuths"], azimuth)
-        for profile in walk["horizons"]
-    ])
-    lit = elevation > skyline
-    return 100 * lit.mean(), elevation, azimuth, lit
-
-
 # ------------------------------------------------------------------- page
 
 st.set_page_config(page_title="Sun Walks", page_icon="*", layout="wide")
@@ -105,7 +56,7 @@ st.caption(
     "weather comes from Open-Meteo."
 )
 
-walks = load_walks()
+walks = cached_walks()
 if not walks:
     st.error("No horizon profiles found. Run `python precompute_horizons.py`.")
     st.stop()
@@ -160,7 +111,7 @@ for walk in eligible:
         start, walk["distance_km"], walk["ascent_m"], pace
     )
     mid_percent, elevation, azimuth, lit = evaluate(walk, middle)
-    lat, lon = walk["points"].mean(axis=0)
+    lat, lon = centre_of(walk)
 
     results.append({
         "walk": walk,
@@ -171,7 +122,7 @@ for walk in eligible:
         "end": evaluate(walk, finish)[0],
         "elevation": elevation,
         "lit": lit,
-        "weather": weather_at(float(lat), float(lon), middle),
+        "weather": weather_at(lat, lon, middle),
     })
 
 looking_for_sun = mode == "Sun"

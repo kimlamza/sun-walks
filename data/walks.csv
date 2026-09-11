@@ -1,11 +1,11 @@
-slug,name,distance_km,ascent_m,jurisdiction,pass_required,drive_min,geometry,role
-grassi-lakes,Grassi Lakes,4.0,200,Canmore Nordic Centre PP,Kananaskis,10,osm,NE-facing under Ha Ling
-grotto-canyon,Grotto Canyon,7.4,130,Bow Valley PP,Kananaskis,15,osm,Slot canyon - azimuth gated
-montane-traverse,Montane Traverse,7.4,380,Canmore / Bow Valley Wildland,verify,5,osm,SW-facing bench - the winter walk
-tunnel-mountain,Tunnel Mountain,4.5,266,Banff National Park,Parks Canada,25,osm,Small hill among big mountains
-quarry-lake,Quarry Lake,2.5,20,Town of Canmore,none,5,osm-proximity,Open valley floor in town
-cougar-creek,Cougar Creek,8.0,300,Bow Valley Wildland PP,verify,5,osm,NE drainage - steep sided
-goat-creek,Goat Creek,10.0,200,Spray Valley PP,Kananaskis,15,osm,Spray valley - different orientation
-heart-creek,Heart Creek,4.4,100,Bow Valley Wildland PP,Kananaskis,20,osm,East end of the Bow Valley
-troll-falls,Troll Falls,3.4,60,Kananaskis Country,Kananaskis,35,osm,Kananaskis valley - runs N-S
-lake-minnewanka,Lake Minnewanka,8.0,150,Banff National Park,Parks Canada,35,osm,E-W lakeshore - south facing
+slug,name,distance_km,ascent_m,jurisdiction,pass_required,drive_min,geometry,trailhead_lat,trailhead_lon,trim_km,role
+grassi-lakes,Grassi Lakes,4.0,200,Canmore Nordic Centre PP,Kananaskis,10,osm,,,,NE-facing under Ha Ling
+grotto-canyon,Grotto Canyon,7.4,130,Bow Valley PP,Kananaskis,15,osm,,,,Slot canyon - azimuth gated
+montane-traverse,Montane Traverse,7.4,380,Canmore / Bow Valley Wildland,verify,5,osm,,,,SW-facing bench - the winter walk
+tunnel-mountain,Tunnel Mountain,4.5,266,Banff National Park,Parks Canada,25,osm,,,,Small hill among big mountains
+quarry-lake,Quarry Lake,2.5,20,Town of Canmore,none,5,osm-proximity,,,,Open valley floor in town
+cougar-creek,Cougar Creek,8.0,300,Bow Valley Wildland PP,verify,5,osm,,,,NE drainage - steep sided
+goat-creek,Goat Creek,10.0,200,Spray Valley PP,Kananaskis,15,osm,,,,Spray valley - different orientation
+heart-creek,Heart Creek,4.4,100,Bow Valley Wildland PP,Kananaskis,20,osm,51.0474,-115.1645,,East end of the Bow Valley
+troll-falls,Troll Falls,3.4,60,Kananaskis Country,Kananaskis,35,osm,,,,Kananaskis valley - runs N-S
+lake-minnewanka,Lake Minnewanka,8.0,150,Banff National Park,Parks Canada,35,osm,51.2482,-115.4968,4.0,E-W lakeshore - south facing

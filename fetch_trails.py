@@ -59,16 +59,62 @@ WALKABLE = "^(path|footway|track|steps|bridleway)$"
 
 # Search term, and the role each walk plays in the contrast set.
 # See docs/09-candidate-walks.md.
+# For each walk: the term to search for, which OpenStreetMap names to keep,
+# and the role it plays in the contrast set.
+#
+# "keep" exists because searching by name is blunt. "Heart Creek" also
+# matches "Heart Creek Bunker Trail" - a different walk that runs west along
+# the Trans-Canada while the real one heads south-east into the canyon.
+# Left in, it contributed a third of Heart Creek's points and its sun
+# percentage. inspect_route.py is what found it.
+#
+# A "keep" of None means every match is wanted.
 TRAILS = {
-    "grassi-lakes": ("Grassi Lakes", "NE-facing under Ha Ling"),
-    "grotto-canyon": ("Grotto Canyon", "Slot canyon - azimuth gated"),
-    "montane-traverse": ("Montane", "SW-facing bench - the winter walk"),
-    "tunnel-mountain": ("Tunnel Mountain Summit", "Small hill among giants"),
-    "cougar-creek": ("Cougar Creek", "NE drainage - steep sided"),
-    "goat-creek": ("Goat Creek", "Spray valley - different orientation"),
-    "heart-creek": ("Heart Creek", "East end of the Bow Valley"),
-    "troll-falls": ("Troll Falls", "Kananaskis valley - runs N-S"),
-    "lake-minnewanka": ("Minnewanka", "E-W lakeshore - south facing"),
+    "grassi-lakes": {
+        "search": "Grassi Lakes",
+        "keep": None,        # three variants, all the same hillside
+        "role": "NE-facing under Ha Ling",
+    },
+    "grotto-canyon": {
+        "search": "Grotto Canyon",
+        "keep": None,
+        "role": "Slot canyon - azimuth gated",
+    },
+    "montane-traverse": {
+        "search": "Montane",
+        "keep": None,        # [verify] is "Montane Cutoff" part of the loop?
+        "role": "SW-facing bench - the winter walk",
+    },
+    "tunnel-mountain": {
+        "search": "Tunnel Mountain Summit",
+        "keep": None,
+        "role": "Small hill among giants",
+    },
+    "cougar-creek": {
+        "search": "Cougar Creek",
+        "keep": None,
+        "role": "NE drainage - steep sided",
+    },
+    "goat-creek": {
+        "search": "Goat Creek",
+        "keep": None,        # two spellings of the same trail
+        "role": "Spray valley - different orientation",
+    },
+    "heart-creek": {
+        "search": "Heart Creek",
+        "keep": ["Heart Creek Trail"],   # excludes the Bunker Trail
+        "role": "East end of the Bow Valley",
+    },
+    "troll-falls": {
+        "search": "Troll Falls",
+        "keep": ["Troll Falls"],         # excludes the Marmot Creek extension
+        "role": "Kananaskis valley - runs N-S",
+    },
+    "lake-minnewanka": {
+        "search": "Minnewanka",
+        "keep": None,        # right trail, but 19 km of it - trimmed later
+        "role": "E-W lakeshore - south facing",
+    },
     # Quarry Lake is fetched separately, by proximity - there is no way in
     # OpenStreetMap with that name. See fetch_quarry_lake.py.
 }
@@ -110,17 +156,25 @@ def run_query(terms, attempts=3):
 
 
 def which_trail(osm_name):
-    """Which of our five trails does this OpenStreetMap name belong to?"""
-    for slug, (term, _) in TRAILS.items():
-        if re.search(re.escape(term), osm_name, re.IGNORECASE):
-            return slug
-    return None
+    """
+    Which walk does this OpenStreetMap name belong to, if any?
+
+    Returns (slug, kept). A name can match a walk's search term and still be
+    rejected by its "keep" list - that is how the Heart Creek Bunker Trail
+    is excluded while staying visible in the output, so an over-tight filter
+    is as obvious as an over-loose one.
+    """
+    for slug, trail in TRAILS.items():
+        if re.search(re.escape(trail["search"]), osm_name, re.IGNORECASE):
+            kept = trail["keep"] is None or osm_name in trail["keep"]
+            return slug, kept
+    return None, False
 
 
 if __name__ == "__main__":
     ROUTES_DIR.mkdir(parents=True, exist_ok=True)
 
-    terms = [term for term, _ in TRAILS.values()]
+    terms = [trail["search"] for trail in TRAILS.values()]
     batches = [terms[i:i + BATCH_SIZE]
                for i in range(0, len(terms), BATCH_SIZE)]
 
@@ -135,16 +189,21 @@ if __name__ == "__main__":
 
     print(f"\n{len(elements)} matching ways in total\n")
 
-    collected = {slug: {"points": [], "seen": set(), "names": set()}
+    collected = {slug: {"points": [], "seen": set(),
+                        "names": set(), "rejected": set()}
                  for slug in TRAILS}
 
     for element in elements:
         osm_name = element.get("tags", {}).get("name", "")
-        slug = which_trail(osm_name)
+        slug, kept = which_trail(osm_name)
         if slug is None:
             continue
 
         bucket = collected[slug]
+        if not kept:
+            bucket["rejected"].add(osm_name)
+            continue
+
         bucket["names"].add(osm_name)
         for node in element.get("geometry", []):
             # Round to about a metre - adjacent ways share endpoints.
@@ -153,7 +212,8 @@ if __name__ == "__main__":
                 bucket["seen"].add(key)
                 bucket["points"].append([node["lat"], node["lon"]])
 
-    for slug, (term, role) in TRAILS.items():
+    for slug, trail in TRAILS.items():
+        term, role = trail["search"], trail["role"]
         bucket = collected[slug]
         points = bucket["points"]
         names = sorted(bucket["names"])
@@ -175,6 +235,8 @@ if __name__ == "__main__":
         print(f"{slug:20} {len(points):4} points")
         for name in names:
             print(f"{'':20}   - {name}")
+        for name in sorted(bucket["rejected"]):
+            print(f"{'':20}   x {name}  (excluded by 'keep')")
 
     print("\nRead the names above. Every one should be something you would")
     print("actually walk. A road or a campground appearing here means the")

@@ -50,6 +50,18 @@ What I need, per walk: **none / Kananaskis Conservation Pass / Parks Canada pass
 
 ### 1.3 Does the mapped geometry match the walk people actually do?
 
+> **✅ Largely resolved 11 September 2026.** `inspect_route.py` was written to cluster a walk's points and find nearby car parks. Findings:
+>
+> - **Heart Creek was two trails.** 144 points running south-east into the canyon, and 74 running **due west along the Trans-Canada** — the Heart Creek Bunker Trail. A third of its sun percentage came from a different walk. Excluded by name; result moved 0/7/9 → 0/12/14
+> - **Troll Falls included the Marmot Creek extension**, which climbs into shadier ground. Excluded; result moved 96/89/93 → **100/100/100**, taking it from fourth to first
+> - **Lake Minnewanka spanned 18.9 km** against 8 km recorded — roughly 38 km out and back. Trimmed to 4 km from the day use area at 51.2482, −115.4968. Result moved 24/45/52 → **26/62/94**
+> - **Cougar Creek is fine.** 4.8 km span is about 9.6 km out and back against 8 km recorded. **I was wrong to flag it**
+> - **Montane Cutoff** is still included and still unverified — is it part of the loop?
+>
+> Fixing this also exposed a divergence: `app.py` read trimmed horizon profiles while `sun_on_walks.py` ray marched raw route files, so the two disagreed about Minnewanka in silence. Both now call `src/evaluate.py`.
+
+
+
 **This is the one most likely to be materially wrong**, and it is visible on the app's map. Several walks have more than one OpenStreetMap trail merged into them, because the fetch matches on name.
 
 | Walk | Merged names | Concern |
@@ -104,7 +116,7 @@ Medium, Labrador-type, 6–7 years old — **an assumption**, and the distance, 
 | DNI bands 600 / 300 / 100 W/m² | `src/weather.py` | Measurement showed DNI is close to bimodal, so four bands over-resolve it. Needs a season of observation |
 | Confidence bands 2 / 5 / 10 / 16 days | `src/weather.py` | Reasoned, not measured |
 | Naismith pace factor 1.3 | `src/duration.py` | Never checked against a real walk |
-| ±5 percentage point precision floor | `app.py` | Derived from one comparison. Would be firmer from several |
+| ±5 percentage point precision floor | `app.py` | Derived from one comparison, and **too optimistic at low sun**. Quarry Lake's start figure moved 25% → 10% on a sampling change alone. Below about 10° of solar elevation the answer is extremely sensitive — the same walk swung 21% → 74% in 42 minutes — so sampling choice outweighs reprojection noise. Needs restating as two numbers: a midday floor and a low-sun one |
 
 ---
 

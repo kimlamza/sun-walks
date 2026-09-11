@@ -57,6 +57,35 @@ def evenly_spaced(points, limit):
     return [points[int(i * step)] for i in range(limit)]
 
 
+def trim_to_trailhead(points, walk, to_utm):
+    """
+    Keep only the part of a mapped trail that people actually walk.
+
+    OpenStreetMap maps a trail end to end. Lake Minnewanka's runs 19 km
+    along the shore - nearly 40 km out and back - while the walk anyone does
+    from the day use area is about 8 km. Without trimming, the sun
+    percentage describes the whole lakeshore rather than the walk.
+
+    Where walks.csv gives a trailhead and a trim distance, points beyond
+    that distance are dropped. Blank means keep everything.
+    """
+    if not walk.get("trim_km") or not walk.get("trailhead_lat"):
+        return points, 0
+
+    limit_m = float(walk["trim_km"]) * 1000
+    head = to_utm.transform(
+        float(walk["trailhead_lon"]), float(walk["trailhead_lat"])
+    )
+
+    kept = []
+    for lat, lon in points:
+        easting, northing = to_utm.transform(lon, lat)
+        if np.hypot(easting - head[0], northing - head[1]) <= limit_m:
+            kept.append([lat, lon])
+
+    return kept, len(points) - len(kept)
+
+
 if __name__ == "__main__":
     HORIZONS_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -81,9 +110,14 @@ if __name__ == "__main__":
             print(f"{slug:20} no geometry - skipped")
             continue
 
-        points = evenly_spaced(
-            json.loads(route_file.read_text())["points"], MAX_POINTS_PER_WALK
-        )
+        all_points = json.loads(route_file.read_text())["points"]
+        all_points, trimmed = trim_to_trailhead(all_points, walk, to_utm)
+
+        if not all_points:
+            print(f"{slug:20} every point trimmed away - check trim_km")
+            continue
+
+        points = evenly_spaced(all_points, MAX_POINTS_PER_WALK)
 
         kept_points = []
         profiles = []
@@ -114,9 +148,15 @@ if __name__ == "__main__":
         )
 
         skyline = np.array(profiles)
-        note = f", {outside} outside the model" if outside else ""
-        print(f"{slug:20} {len(kept_points):3} points{note}   "
-              f"skyline {skyline.min():5.1f} to {skyline.max():5.1f} deg")
+        notes = []
+        if trimmed:
+            notes.append(f"{trimmed} beyond {walk['trim_km']} km of trailhead")
+        if outside:
+            notes.append(f"{outside} outside the model")
+        note = f"  ({'; '.join(notes)})" if notes else ""
+
+        print(f"{slug:20} {len(kept_points):3} points   "
+              f"skyline {skyline.min():5.1f} to {skyline.max():5.1f} deg{note}")
 
     print(f"\nWritten to {HORIZONS_DIR}/. Queries are now lookups.")
     print("Rerun this after changing the DEM or adding a walk.")
