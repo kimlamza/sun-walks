@@ -118,6 +118,23 @@ Solstices are the worst choice for comparing walks. In December everything under
 
 **Check on the map, or against Google Maps / AllTrails:** does each amber-and-grey dot cluster follow the walk you would actually do? Lake Minnewanka and Cougar Creek are the two I expect to be wrong.
 
+### 1.4a Cougar Creek is partly restricted, and the mapped route covers it
+
+**Found 11 September 2026.** After severe rainfall and creek erosion, the Town of Canmore and Alberta Parks restrict access to the Cougar Creek canyon:
+
+- **Foot traffic from the trailhead is limited to the Mount Lady MacDonald trail**
+- **Travel past the Cougar Creek Debris Retention Structure** into the upper canyon creek bed is restricted or prohibited, due to unstable embankments
+- On-site closure maps at the trailhead kiosk are the current authority
+
+**The mapped geometry is the 4.8 km "Cougar Creek Route" up the drainage — largely the restricted ground.** So the walk being modelled is not the walk you are permitted to do. This is a *standing* restriction, not a weather closure.
+
+Recorded as an `access_note` in `data/walks.csv`, shown as a warning in the app and flagged in the comparison table. **Not fixed** — two options, and both need a decision:
+
+1. **Trim** to below the debris retention structure. Needs its coordinates; not guessing them, since guessed coordinates have produced two wrong answers already
+2. **Swap** the walk for Mount Lady MacDonald, which is the permitted route from that trailhead
+
+**The wider point this exposed:** OpenStreetMap describes where a trail *runs*, never whether you may currently walk it. A 100% sunlit result says nothing about access. The app's caveats now say so explicitly.
+
 ### 1.4 Seasonal closures and wildlife restrictions
 
 **Not implemented at all.** `06-dog-walk-filter.md` designs a Tier 1 seasonal gate; no code enforces it and the app says nothing.

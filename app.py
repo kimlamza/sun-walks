@@ -163,6 +163,9 @@ else:
                if w["pass_required"] not in ("none", "verify")
                else "No pass needed.")
         )
+        if w.get("access_note"):
+            st.warning(f"**Access:** {w['access_note']}")
+
         if runner_up and runner_up["mid"] is not None:
             gap = abs(best["mid"] - runner_up["mid"])
             st.write(
@@ -239,6 +242,7 @@ for result in results:
         "Takes": format_duration(result["hours"]),
         "Drive": f"{w['drive_min']} min",
         "Pass": w["pass_required"],
+        "Access": "⚠" if w.get("access_note") else "",
     })
 
 st.dataframe(pd.DataFrame(table), hide_index=True, width="stretch")
@@ -274,9 +278,18 @@ local. Direct beam is close to binary and swings fast; the geometry above
 is stable, the weather is not. Forecast skill decays sharply past five days
 and runs out entirely at sixteen.
 
+**Closures and trail damage are not modelled.** Routes come from
+OpenStreetMap and describe where a trail runs, not whether you are
+currently allowed to walk it. Flooding, erosion, wildlife closures,
+seasonal restrictions and avalanche hazard all change access, sometimes
+for years, and none of it appears here. **A walk shown at 100% sunlit may
+be closed.** Where a standing restriction is known it is flagged above, but
+that list is not maintained — check the trailhead kiosk and the relevant
+authority before you go.
+
 **This tool does not assess safety.** It says nothing about avalanche
-terrain, wildlife closures or trail conditions. Check Avalanche Canada,
-Parks Canada and Alberta Parks before you go. Trail rules and distances are
-desk research flagged `[verify]`, not surveyed fact.
+terrain, wildlife or trail conditions. Check Avalanche Canada, Parks Canada
+and Alberta Parks. Trail rules, distances and drive times are desk research
+flagged `[verify]`, not surveyed fact.
 """
 )

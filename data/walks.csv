@@ -1,12 +1,12 @@
-slug,name,distance_km,ascent_m,jurisdiction,pass_required,drive_min,geometry,trailhead_lat,trailhead_lon,trim_km,role
-grassi-lakes,Grassi Lakes (easy route),4.0,200,Canmore Nordic Centre PP,Kananaskis,10,osm,,,,NE-facing under Ha Ling
-grassi-lakes-upper,Grassi Lakes (upper route),4.0,250,Canmore Nordic Centre PP,Kananaskis,10,osm,,,,Under the headwall - far shadier
-grotto-canyon,Grotto Canyon,7.4,130,Bow Valley PP,Kananaskis,15,osm,,,,Slot canyon - azimuth gated
-montane-traverse,Montane Traverse,7.4,380,Town of Canmore,none (Cougar Creek lot),5,osm,,,,SW-facing bench - the winter walk
-tunnel-mountain,Tunnel Mountain,4.5,266,Banff National Park,Parks Canada,25,osm,,,,Small hill among big mountains
-quarry-lake,Quarry Lake,2.5,20,Town of Canmore,none,5,osm-proximity,,,,Open valley floor in town
-cougar-creek,Cougar Creek,8.0,300,Town of Canmore,none (Cougar Creek lot),5,osm,,,,NE drainage - steep sided
-goat-creek,Goat Creek,10.0,200,Spray Valley PP,Kananaskis,15,osm,51.0617,-115.4186,5.0,Spray valley - different orientation
-heart-creek,Heart Creek,4.4,100,Bow Valley Wildland PP,Kananaskis,20,osm,51.0474,-115.1645,,East end of the Bow Valley
-troll-falls,Troll Falls,3.4,60,Kananaskis Country,Kananaskis,35,osm,,,,Kananaskis valley - runs N-S
-lake-minnewanka,Lake Minnewanka,8.0,150,Banff National Park,Parks Canada,35,osm,51.2482,-115.4968,4.0,E-W lakeshore - south facing
+slug,name,distance_km,ascent_m,jurisdiction,pass_required,drive_min,geometry,trailhead_lat,trailhead_lon,trim_km,role,access_note
+grassi-lakes,Grassi Lakes (easy route),4.0,200,Canmore Nordic Centre PP,Kananaskis,10,osm,,,,NE-facing under Ha Ling,
+grassi-lakes-upper,Grassi Lakes (upper route),4.0,250,Canmore Nordic Centre PP,Kananaskis,10,osm,,,,Under the headwall - far shadier,
+grotto-canyon,Grotto Canyon,7.4,130,Bow Valley PP,Kananaskis,15,osm,,,,Slot canyon - azimuth gated,Dog access unconfirmed - sources conflict
+montane-traverse,Montane Traverse,7.4,380,Town of Canmore,none (Cougar Creek lot),5,osm,,,,SW-facing bench - the winter walk,
+tunnel-mountain,Tunnel Mountain,4.5,266,Banff National Park,Parks Canada,25,osm,,,,Small hill among big mountains,
+quarry-lake,Quarry Lake,2.5,20,Town of Canmore,none,5,osm-proximity,,,,Open valley floor in town,
+cougar-creek,Cougar Creek,8.0,300,Town of Canmore,none (Cougar Creek lot),5,osm,,,,NE drainage - steep sided,RESTRICTED - travel past the debris retention structure into the upper canyon is restricted or prohibited after flood erosion. Foot access from the trailhead is limited to the Mount Lady MacDonald trail. The mapped route covers ground you may not be allowed to walk. Check the trailhead kiosk
+goat-creek,Goat Creek,10.0,200,Spray Valley PP,Kananaskis,15,osm,51.0617,-115.4186,5.0,Spray valley - different orientation,
+heart-creek,Heart Creek,4.4,100,Bow Valley Wildland PP,Kananaskis,20,osm,51.0474,-115.1645,,East end of the Bow Valley,
+troll-falls,Troll Falls,3.4,60,Kananaskis Country,Kananaskis,35,osm,,,,Kananaskis valley - runs N-S,
+lake-minnewanka,Lake Minnewanka,8.0,150,Banff National Park,Parks Canada,35,osm,51.2482,-115.4968,4.0,E-W lakeshore - south facing,
