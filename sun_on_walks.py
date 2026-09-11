@@ -34,6 +34,12 @@ from src.evaluate import TIMEZONE, centre_of, evaluate, load_walks
 SCENARIOS = [
     (3, "11:00", "THREE DAYS OUT"),
     ("2026-12-21", "11:00", "MIDWINTER - 21 December (geometry only)"),
+    # The equinox is where terrain shadow discriminates most. At the
+    # solstices the answers saturate - everything is shaded in December,
+    # everything is lit in June - and walks that genuinely differ look
+    # identical. The two Grassi Lakes routes are 87 points apart here and
+    # indistinguishable at either solstice.
+    ("2026-03-20", "11:00", "SPRING EQUINOX - 20 March (geometry only)"),
 ]
 
 

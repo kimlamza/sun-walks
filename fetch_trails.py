@@ -70,10 +70,23 @@ WALKABLE = "^(path|footway|track|steps|bridleway)$"
 #
 # A "keep" of None means every match is wanted.
 TRAILS = {
+    # Grassi Lakes is two walks, not one. They share both endpoints, so
+    # merging them looked safe - and at midwinter and midsummer they give
+    # identical answers. But at the spring equinox at noon the lower routes
+    # read 100% and the Upper reads 13%, because the Upper climbs the
+    # headwall directly under the cliffs. An 87 point spread.
+    # compare_variants.py found it by sweeping whole days for the hour of
+    # greatest disagreement, rather than checking a few chosen moments
+    # where agreement was inevitable.
     "grassi-lakes": {
         "search": "Grassi Lakes",
-        "keep": None,        # three variants, all the same hillside
-        "role": "NE-facing under Ha Ling",
+        "keep": ["Grassi Lakes Interpretive Trail", "Grassi Lakes Trail"],
+        "role": "NE-facing under Ha Ling - the easy route",
+    },
+    "grassi-lakes-upper": {
+        "search": "Grassi Lakes",
+        "keep": ["Upper Grassi Lakes Trail"],
+        "role": "Under the headwall - far shadier than the lower route",
     },
     "grotto-canyon": {
         "search": "Grotto Canyon",
@@ -169,10 +182,25 @@ def which_trail(osm_name):
     is excluded while staying visible in the output, so an over-tight filter
     is as obvious as an over-loose one.
     """
+    # An explicit keep list wins, because it is the specific case. Two
+    # walks can share a search term - Grassi Lakes and Grassi Lakes Upper
+    # both search "Grassi Lakes" - and the name decides which is which.
+    for slug, trail in TRAILS.items():
+        if trail["keep"] and osm_name in trail["keep"]:
+            return slug, True
+
+    # Then walks that take everything their search term matches.
+    for slug, trail in TRAILS.items():
+        if trail["keep"] is None and re.search(
+            re.escape(trail["search"]), osm_name, re.IGNORECASE
+        ):
+            return slug, True
+
+    # Matched a search term but was excluded by that walk's keep list.
     for slug, trail in TRAILS.items():
         if re.search(re.escape(trail["search"]), osm_name, re.IGNORECASE):
-            kept = trail["keep"] is None or osm_name in trail["keep"]
-            return slug, kept
+            return slug, False
+
     return None, False
 
 
