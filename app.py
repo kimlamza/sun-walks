@@ -20,7 +20,7 @@ import pandas as pd
 import streamlit as st
 from streamlit_folium import st_folium
 
-from src import weather
+from src import closures, weather
 from src.duration import format_duration, walk_times
 from src.evaluate import TIMEZONE, centre_of, evaluate, load_walks
 
@@ -89,9 +89,15 @@ start = pd.Timestamp.combine(chosen_date, chosen_time).tz_localize(TIMEZONE)
 
 # ------------------------------------------------------------- filter them
 
+seasonal = closures.load()
+
 eligible, excluded = [], []
 for walk in walks:
-    if walk["drive_min"] > max_drive:
+    banned = closures.prohibitions(start, walk["slug"], seasonal)
+    if banned:
+        excluded.append((walk, f"closed {banned[0]['starts']} to "
+                               f"{banned[0]['ends']} — {banned[0]['what']}"))
+    elif walk["drive_min"] > max_drive:
         excluded.append((walk, f"{walk['drive_min']} min drive"))
     elif not distance[0] <= walk["distance_km"] <= distance[1]:
         excluded.append((walk, f"{walk['distance_km']:.1f} km"))
@@ -153,6 +159,8 @@ def warnings_for(result):
         flags.append("finishes in dark")
     if walk.get("access_note"):
         flags.append("access")
+    if closures.restrictions(start, walk["slug"], seasonal):
+        flags.append("seasonal rules")
     if walk.get("ice_risk") == "high" and start.month in WINTER_MONTHS:
         flags.append("ice")
     if walk.get("water") == "none":
@@ -228,6 +236,12 @@ else:
                 f"**You would finish this walk after dark** — around "
                 f"{finish:%H:%M}, with the sun already below the horizon. "
                 "Set off earlier, or pick something shorter."
+            )
+
+        for rule in closures.restrictions(start, w["slug"], seasonal):
+            st.warning(
+                f"**In season {rule['starts']} to {rule['ends']}:** "
+                f"{rule['what']} ({rule['source']})"
             )
 
         if w.get("access_note"):
@@ -343,6 +357,18 @@ if excluded:
 
 st.divider()
 st.subheader("Before you go")
+
+in_season = closures.cautions(start, seasonal)
+if in_season:
+    st.markdown(f"**What is in season on {start:%d %B}**")
+    for entry in in_season:
+        st.markdown(f"- {entry['what']}")
+    st.caption(
+        "Valley-wide, applies to every walk here. These are the restrictions "
+        "that recur every year — **wildlife warnings and sudden closures do "
+        "not follow a calendar and are not in this tool.**"
+    )
+    st.write("")
 
 st.markdown(
     "Nothing on this page is current. Closures, wildlife warnings and trail "

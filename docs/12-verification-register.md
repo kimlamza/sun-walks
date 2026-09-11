@@ -174,6 +174,24 @@ Two things came out of the swap:
 
 ### 1.4 Seasonal closures and wildlife restrictions
 
+> **✅ IMPLEMENTED 11 September 2026** — `data/closures.csv`, `src/closures.py`, seven new tests.
+>
+> **The deliberate limit: only restrictions that recur every year are encoded.** Alberta Parks issues elk warnings "from May until further notice" and closes areas when a bear starts using them. Those have no end date and no pattern, so putting them in a table would manufacture certainty that does not exist. A date range that repeats annually is data; a warning that appeared last Tuesday is not. The app links to the authorities for the second kind.
+>
+> **Three severities:**
+>
+> | Level | Effect | Example |
+> |---|---|---|
+> | `prohibited` | Walk is removed from the rankings, with the reason shown | Lake Minnewanka, 10 Jul – 15 Sep: no pets at all |
+> | `restricted` | Warning against that walk | Goat Creek and Grassi Lakes, 1 Dec – 31 Mar: groomed ski trails |
+> | `caution` | Shown once, valley-wide | Bear season 1 Apr – 30 Nov; elk calving 1 May – 30 Jun; rut 1 Sep – 31 Oct |
+>
+> **The bug this was written to avoid:** a ski-season range of `12-01` to `03-31` is active in January, and the obvious implementation — `start <= date <= end` — returns **False** for that. False is a plausible answer, so nothing complains; the restriction simply stops firing for exactly the months it exists for. `covers()` handles the wrap and `test_closures.py` checks January specifically.
+>
+> **A finding worth recording:** none of the eleven walks sits inside a known annual *full* closure. Pigeon Mountain and West Wind Valley close 1 Dec – 15 Jun for elk and bighorn winter range, but neither is on the list. That is luck rather than design — the walks were chosen for solar geometry, not for access.
+
+### 1.4z Original note
+
 **Not implemented at all.** `06-dog-walk-filter.md` designs a Tier 1 seasonal gate; no code enforces it and the app says nothing.
 
 - Bear closures, roughly April–November
