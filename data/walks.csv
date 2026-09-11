@@ -1,12 +1,12 @@
 slug,name,distance_km,ascent_m,jurisdiction,pass_required,drive_min,geometry,trailhead_lat,trailhead_lon,trim_km,water,ice_risk,role,access_note
-grassi-lakes,Grassi Lakes (easy route),4.0,200,Canmore Nordic Centre PP,Kananaskis,10,osm,,,,yes,moderate,NE-facing under Ha Ling,WINTER - Canmore Nordic Centre grooms ski trails and dogs are only permitted on designated ones [verify which]
-grassi-lakes-upper,Grassi Lakes (upper route),4.0,250,Canmore Nordic Centre PP,Kananaskis,10,osm,,,,yes,high,Under the headwall - far shadier,WINTER - as above. Steep rocky stepped sections that ice up
-grotto-canyon,Grotto Canyon,7.4,130,Bow Valley PP,Kananaskis,15,osm,,,,limited,high,Slot canyon - azimuth gated,Leashed dogs confirmed. Walked along a creek bed - rocky and abrasive underfoot, and reliably icy in winter
+grassi-lakes,Grassi Lakes (easy route),4.0,200,Canmore Nordic Centre PP,Kananaskis,10,osm,,,,yes,moderate,NE-facing under Ha Ling,
+grassi-lakes-upper,Grassi Lakes (upper route),4.0,250,Canmore Nordic Centre PP,Kananaskis,10,osm,,,,yes,high,Under the headwall - far shadier,Steep rocky stepped sections underfoot
+grotto-canyon,Grotto Canyon,7.4,130,Bow Valley PP,Kananaskis,15,osm,,,,limited,high,Slot canyon - azimuth gated,Walked along a creek bed - rocky and abrasive underfoot
 montane-traverse,Montane Traverse,7.4,380,Town of Canmore,none (Cougar Creek lot),5,osm,,,,limited,low,SW-facing bench - the winter walk,
-tunnel-mountain,Tunnel Mountain,4.5,266,Banff National Park,Parks Canada,25,osm,,,,none,moderate,Small hill among big mountains,No water on the climb - carry some in warm weather
+tunnel-mountain,Tunnel Mountain,4.5,266,Banff National Park,Parks Canada,25,osm,,,,none,moderate,Small hill among big mountains,No water anywhere on the climb
 quarry-lake,Quarry Lake,2.5,20,Town of Canmore,none,5,osm-proximity,,,,yes,low,Open valley floor in town,Designated off-leash zones at the meadow and dog pond; on-leash elsewhere
 lady-macdonald,Mount Lady Macdonald,10.0,880,Town of Canmore / Bow Valley Wildland,none (Cougar Creek lot),5,osm,,,,none,high,SW-facing climb above Canmore,880 m sustained climb on loose rubble with no water. Hard on paws descending. The ridge above the teahouse ruins is exposed and unsuitable for a dog
-goat-creek,Goat Creek,10.0,200,Spray Valley PP,Kananaskis,15,osm,51.0617,-115.4186,5.0,yes,low,Spray valley - different orientation,WINTER - groomed ski trail. Alberta Parks does not permit pets on most groomed ski trails unless designated [verify]
-heart-creek,Heart Creek,4.4,100,Bow Valley Wildland PP,Kananaskis,20,osm,51.0474,-115.1645,,yes,high,East end of the Bow Valley,Creek-bed and canyon walking - ices over in winter
-troll-falls,Troll Falls,3.4,60,Kananaskis Country,Kananaskis,35,osm,,,,yes,high,Kananaskis valley - runs N-S,Leashed dogs confirmed. The falls and the trail below them ice up in winter
-lake-minnewanka,Lake Minnewanka (to Stewart Canyon),3.0,80,Banff National Park,Parks Canada,35,osm,51.2482,-115.4968,1.5,yes,moderate,E-W lakeshore - south facing,"DOGS PROHIBITED past the Stewart Canyon bridge, year round. And from 10 July to 15 September pets are not allowed on this trail at all, even leashed - hikers must also be in groups of 4+ carrying bear spray"
+goat-creek,Goat Creek,10.0,200,Spray Valley PP,Kananaskis,15,osm,51.0617,-115.4186,5.0,yes,low,Spray valley - different orientation,
+heart-creek,Heart Creek,4.4,100,Bow Valley Wildland PP,Kananaskis,20,osm,51.0474,-115.1645,,yes,high,East end of the Bow Valley,Creek-bed and canyon walking
+troll-falls,Troll Falls,3.4,60,Kananaskis Country,Kananaskis,35,osm,,,,yes,high,Kananaskis valley - runs N-S,
+lake-minnewanka,Lake Minnewanka (to Stewart Canyon),3.0,80,Banff National Park,Parks Canada,35,osm,51.2482,-115.4968,1.5,yes,moderate,E-W lakeshore - south facing,"Dogs are prohibited past the Stewart Canyon bridge, all year"

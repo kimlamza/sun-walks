@@ -13,6 +13,13 @@ belong to the authorities, and the app links out to them instead.
 So: a date range that recurs every year is data. A warning that appeared
 last Tuesday is not.
 
+**Division of labour with walks.csv.** The `access_note` column there holds
+facts that are true all year - Lake Minnewanka's dogs-past-the-bridge ban,
+Mount Lady Macdonald having no water. Anything seasonal belongs here
+instead, because `access_note` is shown whatever the date. Putting the
+groomed-ski-trail rule in both meant it warned about winter in August.
+Nothing should appear in both files.
+
 Three levels:
   prohibited  the walk is off the list for that date, with a reason
   restricted  extra rules apply - shown as a warning against that walk
