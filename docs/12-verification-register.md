@@ -56,9 +56,33 @@ What I need, per walk: **none / Kananaskis Conservation Pass / Parks Canada pass
 > - **Troll Falls included the Marmot Creek extension**, which climbs into shadier ground. Excluded; result moved 96/89/93 → **100/100/100**, taking it from fourth to first
 > - **Lake Minnewanka spanned 18.9 km** against 8 km recorded — roughly 38 km out and back. Trimmed to 4 km from the day use area at 51.2482, −115.4968. Result moved 24/45/52 → **26/62/94**
 > - **Cougar Creek is fine.** 4.8 km span is about 9.6 km out and back against 8 km recorded. **I was wrong to flag it**
-> - **Montane Cutoff** is still included and still unverified — is it part of the loop?
+> - **Montane Traverse had an unrelated trail merged in.** Bare "Montane" sits at −115.07, about **19 km east near Exshaw**, against the benchlands at −115.34. Excluded, along with "Montane Cutoff" which forms its own disconnected cluster. Start figure moved 76% → **92%**
+> - **Grassi Lakes was two walks, not one.** Split into `grassi-lakes` (Interpretive + main) and `grassi-lakes-upper`. See below — this was the subtlest of the four
+> - **Grotto Canyon, Tunnel Mountain** — checked on the map, both correct
+> - **Goat Creek** — correct, but spanned 10.8 km against a 10 km out-and-back. Trimmed to 5 km from the trailhead at 51.0617, −115.4186
+> - **Quarry Lake** — points are scattered rather than a clean loop, and some overlap the Powerline Trail. **Accepted deliberately:** it is a 2.5 km walk and everything within 120 m of the lake shares the same skyline, so the sun percentage is unaffected
 >
 > Fixing this also exposed a divergence: `app.py` read trimmed horizon profiles while `sun_on_walks.py` ray marched raw route files, so the two disagreed about Minnewanka in silence. Both now call `src/evaluate.py`.
+
+### 1.3a Grassi Lakes was two walks — and the first test could not have found it
+
+`compare_variants.py` computed each named variant separately. At **midwinter and midsummer all three agreed exactly** — 0% and 100%.
+
+**That agreement proved nothing.** Under Ha Ling the whole hillside is shaded in December and lit in June, so any two routes must agree. It was a test that could only return one answer.
+
+Sweeping every hour across four seasons for the point of *greatest* disagreement found **20 March at noon**:
+
+| Variant | Sunlit |
+|---|---|
+| Grassi Lakes Interpretive Trail | 100% |
+| Grassi Lakes Trail | 100% |
+| **Upper Grassi Lakes Trail** | **13%** |
+
+An 87-point spread. The Upper route climbs the headwall directly beneath the cliffs; the lower routes stay in the open. Same trailhead, same destination, different walks.
+
+Now split into two rows. At the equinox they read 100% and 38%.
+
+**Two things to carry forward.** `09-candidate-walks.md` had already flagged that two Grassi routes exist and said "pick one and record which" — and it was merged anyway; a flagged risk that gets designed around is not the same as one that gets handled. And **the equinox is now a standing scenario in `sun_on_walks.py`**, because solstices saturate: walks that genuinely differ look identical at both ends of the year.
 
 
 
