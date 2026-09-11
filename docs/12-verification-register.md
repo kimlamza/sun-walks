@@ -43,18 +43,24 @@ What I need, per walk: **none / Kananaskis Conservation Pass / Parks Canada pass
 >
 > This also resolves Cougar Creek, which shares that trailhead.
 
-| Walk | Currently recorded | Confidence |
+> **✅ 1.2 RESOLVED IN FULL, 11 September 2026.**
+>
+> **No walk here requires a hiking permit.** The pass is a property of the **car park**, not the trail — confirmed independently for Montane Traverse and again for Goat Creek, Heart Creek and Troll Falls. That framing matters: the same walk can need a pass or not depending on where you leave the car.
+
+| Walk | Pass required | Basis |
 |---|---|---|
-| Montane Traverse | none (Cougar Creek lot) | **confirmed** |
-| Cougar Creek | none (Cougar Creek lot) | **confirmed** |
-| Goat Creek | Kananaskis | low — Spray Valley PP assumed |
-| Heart Creek | Kananaskis | low |
-| Troll Falls | Kananaskis | medium |
-| Lake Minnewanka | Parks Canada | medium–high |
-| Grotto Canyon | Kananaskis | medium–high |
-| Grassi Lakes | Kananaskis | high — sourced |
-| Tunnel Mountain | Parks Canada | high |
-| Quarry Lake | none | high |
+| Montane Traverse | none (Cougar Creek lot) | Town of Canmore municipal land, exempt |
+| Mount Lady Macdonald | none (Cougar Creek lot) | Same trailhead |
+| Quarry Lake | none | Town of Canmore |
+| Grassi Lakes (both routes) | Kananaskis | Sourced — Alberta Parks |
+| Grotto Canyon | Kananaskis | Sourced — named in KCP guidance |
+| Goat Creek | Kananaskis | Sourced — trailhead in Kananaskis Country |
+| Heart Creek | Kananaskis | Sourced — trailhead in the Bow Valley Corridor |
+| Troll Falls | Kananaskis | Sourced — trailhead in Kananaskis Country |
+| Tunnel Mountain | Parks Canada | Banff National Park |
+| Lake Minnewanka | Parks Canada | Banff National Park |
+
+Current pricing `[verify]`: Kananaskis Conservation Pass $15/day or $90/year, registered to the vehicle plate. A pass is not needed if you arrive on foot or by bike, or are dropped off.
 
 ### 1.3 Does the mapped geometry match the walk people actually do?
 
@@ -217,9 +223,14 @@ Also never fetched: **ATES avalanche terrain ratings** and **Avalanche Canada bu
 
 ## What I need from you, in order
 
-1. **Dog access** for the five unchecked walks, and a ruling on Grotto Canyon
-2. **Pass required** for each of the ten
-3. **Map check** — which walks show geometry that is not the walk, especially Lake Minnewanka and Cougar Creek
-4. Anything from Tier 2 you can settle quickly — drive times are probably the fastest
+**Tier 1 is down to one item.**
 
-Give me those and I will update `data/walks.csv`, the fetch scripts and the docs in one pass.
+1. **Dog access.** Confirmed for Grassi Lakes, Montane Traverse, Tunnel Mountain and Quarry Lake. **Unconfirmed for Goat Creek, Heart Creek, Troll Falls, Lake Minnewanka and Mount Lady Macdonald** — assumed when those walks were added for geographic contrast, never checked. **Grotto Canyon remains contradictory**: most sources say leashed dogs are fine, one said pets are not allowed.
+
+   This is the premise of the whole tool, so it is the last thing that should still be an assumption.
+
+2. **Seasonal closures** (1.4) are not implemented at all — bear activity, elk calving and rut, Kananaskis winter wildlife closures. The app defers to the authorities rather than pretending otherwise, which is honest but minimal.
+
+3. Anything from Tier 2 — **drive times** are all my estimates and are the fastest to settle.
+
+✅ **Resolved:** passes for all eleven walks (1.2), trail geometry for all eleven (1.3), the Grassi Lakes split (1.3a), scenario choice (1.3b), and the Cougar Creek restriction (1.4a, resolved by swapping to Mount Lady Macdonald).
