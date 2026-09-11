@@ -338,6 +338,19 @@ if best is not None:
 
 st.subheader("Where the sun falls")
 
+# Built from the SUN and SHADE constants rather than hard-coded, so the
+# legend cannot drift away from what the map actually draws.
+st.markdown(
+    '<div style="font-size:0.9rem; margin:-0.4rem 0 0.6rem 0;">'
+    f'<span style="color:{SUN}; font-size:1.3rem; '
+    'vertical-align:middle;">&#9679;</span> in direct sun'
+    '&nbsp;&nbsp;&nbsp;&nbsp;'
+    f'<span style="color:{SHADE}; font-size:1.3rem; '
+    'vertical-align:middle;">&#9679;</span> in shade'
+    '</div>',
+    unsafe_allow_html=True,
+)
+
 centre = np.mean([r["walk"]["points"].mean(axis=0) for r in results], axis=0)
 chart = folium.Map(location=list(centre), zoom_start=11,
                    tiles="OpenStreetMap")
@@ -380,9 +393,8 @@ for result in results:
 
 st_folium(chart, height=460, use_container_width=True,
           returned_objects=[])
-st.caption("Each dot is a sampled point on a trail — **red for direct sun, "
-           "blue for shade**, at each walk's own midpoint time. Hover any "
-           "dot to see which walk it belongs to.")
+st.caption("Each dot is a sampled point on a trail, at that walk's own "
+           "midpoint time. Hover any dot to see which walk it belongs to.")
 
 # ----------------------------------------------------------------- table
 
