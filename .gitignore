@@ -1,6 +1,10 @@
-# Large data — rebuilt by script, never committed
+# Generated or fetched — rebuilt on demand, never committed.
+# data/routes/, data/walks.csv and data/closures.csv ARE committed: the
+# first is small and stable, the other two are hand-curated knowledge that
+# exists nowhere else.
 data/dem/
 data/horizons/
+data/weather/
 
 # Python
 __pycache__/
