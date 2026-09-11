@@ -75,7 +75,24 @@ Agreement between two independent implementations of the same physics is strong 
 
 **Do A3 before building any UI.** About an hour.
 
-### A4. PVGIS horizon profiles
+### A4. PVGIS horizon profiles — ✅ PASSED 11 September 2026
+
+`validate_pvgis.py`. Two points checked against the European Commission's PVGIS, which computes terrain horizons for solar panel siting — the same physical quantity, from a different organisation, different code and different elevation data (SRTM against our Copernicus).
+
+| Point | RMS difference | Bias | Worst case |
+|---|---|---|---|
+| Canmore town centre | **0.7°** | +0.2° | 2.6° |
+| Under Ha Ling (Grassi Lakes) | **2.3°** | −0.3° | 8.1° |
+
+**Under a degree at the valley floor.** The steeper point disagrees more, which is expected: PVGIS samples SRTM at roughly 90 m where we use Copernicus at 30 m, and a 46° skyline is exactly where resolution differences bite.
+
+**The azimuth convention was detected, not assumed.** PVGIS measures from **south**; we measure clockwise from **north**. Rather than hard-coding that, the script tries every rotation and reports which fits — so a convention difference shows up as a clean 180° offset rather than as a failure. That is the same bug class `test_north_is_not_south` exists for.
+
+**And the first run over-claimed.** At the Ha Ling point, 175° and 180° both returned RMS 2.3° — a tie. The script reported 175° as "matching no standard convention", which sounded like a finding and was sampling noise: PVGIS returns 49 bearings, so it samples every 7.3°, and rotations closer than that are indistinguishable. Now it prefers a standard convention when one ties, and says so.
+
+Worth noting as a pattern: **the first version of every check in this project has over-claimed.** The Grassi Lakes variant comparison said "identical" from saturated conditions; this one manufactured a convention from noise. A check needs checking.
+
+### A4z (original plan)
 
 The EU Joint Research Centre's **PVGIS** service publishes computed terrain horizon profiles for arbitrary coordinates, free, through a documented web API. It is built for solar panel siting, which is the same physical question asked in a different accent.
 
