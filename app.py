@@ -267,6 +267,53 @@ if excluded:
 # --------------------------------------------------------------- caveats
 
 st.divider()
+st.subheader("Before you go")
+
+st.markdown(
+    "Nothing on this page is current. Closures, wildlife warnings and trail "
+    "damage change daily and none of it reaches this tool — **check the "
+    "authority for the land your walk sits on.**"
+)
+
+kananaskis, banff = st.columns(2)
+
+with kananaskis:
+    st.markdown(
+        """
+**Kananaskis and Canmore**
+*Grassi Lakes · Grotto Canyon · Goat Creek · Heart Creek · Troll Falls*
+
+- [Kananaskis advisories and public safety](https://www.albertaparks.ca/parks/kananaskis/kananaskis-country/advisories-and-public-safety/)
+  — bear and cougar warnings, sudden area closures
+- [Canmore and area trail report](https://www.albertaparks.ca/parks/kananaskis/kananaskis-country/advisories-and-public-safety/trail-reports/canmore-and-area/)
+  — day-to-day conditions
+- [Canmore Nordic Centre trail report](https://www.albertaparks.ca/parks/kananaskis/canmore-nordic-centre-pp/trail-report/trail-report-cnc/)
+  — **which trails are groomed, and which allow dogs in winter**
+"""
+    )
+
+with banff:
+    st.markdown(
+        """
+**Banff National Park**
+*Tunnel Mountain · Lake Minnewanka*
+
+- [Banff trail conditions](https://parks.canada.ca/pn-np/ab/banff/activ/randonnee-hiking/etat-sentiers-trail-conditions)
+  — seasonal restrictions, including the group-of-four rule on parts of
+  Lake Minnewanka in berry season
+- [Keep dogs on leash](https://parks.canada.ca/pn-np/ab/banff/visit/faune-wildlife/chiens-dogs)
+  — leash law applies everywhere in the park, enforced to $25,000
+
+**Winter, both areas**
+- [Avalanche Canada](https://avalanche.ca) — daily bulletins
+"""
+    )
+
+st.info(
+    "**Report a bear, wolf or cougar sighting** to Kananaskis Emergency "
+    "Services on **403-591-7755**."
+)
+
 st.markdown(
     """
 **What this does not model.** Terrain shadow only — no trees, buildings,
