@@ -82,7 +82,12 @@ TRAILS = {
     },
     "montane-traverse": {
         "search": "Montane",
-        "keep": None,        # [verify] is "Montane Cutoff" part of the loop?
+        # Bare "Montane" is a different trail entirely, 19 km east near
+        # Exshaw at -115.07, against the benchlands at -115.34. "Montane
+        # Cutoff" is in the right area but forms its own disconnected
+        # cluster - a link in the network rather than part of the loop.
+        # Reversible: add it back here if it turns out to be walked.
+        "keep": ["Montane Traverse"],
         "role": "SW-facing bench - the winter walk",
     },
     "tunnel-mountain": {

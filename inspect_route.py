@@ -51,6 +51,43 @@ def find_clusters(metres, link_distance=LINK_DISTANCE_M):
     return count, labels
 
 
+def ways_by_name(search_term):
+    """
+    Every matching way from OpenStreetMap, grouped by its name.
+
+    The route files merge all matching ways into one point list, which
+    hides which name contributed which geography. When a walk turns out to
+    be two unrelated paths sharing a word, this is what tells you which
+    name to keep.
+    """
+    query = f"""
+    [out:json][timeout:120];
+    way["highway"~"^(path|footway|track|steps|bridleway)$"]
+       ["name"~"{search_term}",i](50.90,-115.80,51.35,-115.05);
+    out geom;
+    """
+    for url in OVERPASS_URLS:
+        try:
+            response = requests.post(
+                url, data={"data": query},
+                headers={"User-Agent": "sun-walks/0.1"}, timeout=180,
+            )
+            response.raise_for_status()
+            elements = response.json().get("elements", [])
+            break
+        except Exception:
+            elements = []
+    else:
+        return {}
+
+    grouped = {}
+    for element in elements:
+        name = element.get("tags", {}).get("name", "(unnamed)")
+        for node in element.get("geometry", []):
+            grouped.setdefault(name, []).append([node["lat"], node["lon"]])
+    return grouped
+
+
 def find_parking(lat, lon):
     query = f"""
     [out:json][timeout:90];
@@ -98,6 +135,17 @@ if __name__ == "__main__":
         print(f"  Cluster {rank}: {mask.sum():3} points, "
               f"spans {span_km:4.1f} km, "
               f"centre {centre[0]:.4f}, {centre[1]:.4f}")
+
+    print(f"\nWhat each OpenStreetMap name covers "
+          f"(searching '{route['search_term']}'):\n")
+
+    for name, group in sorted(ways_by_name(route["search_term"]).items()):
+        block = to_metres(np.array(group))
+        centre = np.array(group).mean(axis=0)
+        span_km = max(np.ptp(block[:, 0]), np.ptp(block[:, 1])) / 1000
+        kept = "kept" if name in route["osm_names"] else "EXCLUDED"
+        print(f"  {name:42} {len(group):4} pts  spans {span_km:4.1f} km  "
+              f"centre {centre[0]:.4f}, {centre[1]:.4f}  [{kept}]")
 
     # Search near the ENDS of the biggest cluster, not its middle. A trail
     # starts at one end, so for anything long the centroid is nowhere near
