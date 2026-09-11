@@ -106,7 +106,42 @@ Pull the horizon profile for a Canmore point, compare it against yours for the s
 
 ## 3. Tier B — validating against the real world, from here
 
-### B1. Public webcams — the strongest real-world check available
+### B1. Public webcams — ⏳ PREDICTION MADE 11 September 2026, observation pending
+
+**Camera:** the live view from A Bear & Bison Country Inn, 705 Benchlands Trail, Canmore — **51.0964, −115.3429**, ground height **1,372 m** in our terrain model. It looks south-west across the valley at the Three Sisters, so the frame contains the mountains, the valley floor and the camera's own foreground at three different distances and heights.
+
+**The standing prediction.** The inn's foreground comes into direct sun at:
+
+| Date | Sun arrives | Shade arrives |
+|---|---|---|
+| Fri 11 Sep | 08:43 | 18:52 |
+| Sun 13 Sep | 08:44 | 18:47 |
+| Tue 15 Sep | 08:45 | 18:42 |
+| Thu 17 Sep | 08:46 | 18:38 |
+| Sat 19 Sep | 08:47 | 18:33 |
+| Mon 21 Sep | 08:48 | 18:25 |
+| Wed 23 Sep | 08:48 | 18:22 |
+
+**Morning is the test to use.** It moves five minutes across two weeks, because it is governed by the sun clearing Lady Macdonald's bulk to the east — a high skyline, so it happens at a fixed solar elevation whatever the date. The evening slides half an hour over the same span, since it simply tracks sunset. A prediction that barely moves can be checked on any clear day rather than one appointment.
+
+**What the frame should show.** For roughly twenty minutes before the transition: **mountains and valley floor lit, foreground still in shadow.** The shadow edge sweeps *towards* the camera, because the camera sits closer in under the mountain casting it. Rate at the crossing is 12.2°/hour — fast enough to be a clean edge rather than a fade.
+
+**The sequence, all in one frame:**
+
+| | Height | Lights |
+|---|---|---|
+| Three Sisters, far side | 2,576 m | 07:14 |
+| Quarry Lake | 1,369 m | 08:00 |
+| Town centre | 1,312 m | 08:21 |
+| The inn, foreground | 1,372 m | 08:43 |
+
+**The counterintuitive claim worth testing:** the inn is **60 m higher than town centre and gets sun 22 minutes later.** Height buys you nothing when you are closer to the thing casting the shadow.
+
+**What would falsify it:** foreground lighting before the valley floor; everything lighting at once; or the foreground still shaded well after 09:00 on a clear morning.
+
+**Status: clouded out on 11 September.** Forecast direct beam was 59 W/m² at 08:00, not clearing until 10:00. Noted as its own small irony — the condition that makes terrain shadow irrelevant is the same one that makes validating it impossible.
+
+### B1z (method)
 
 **This is the best answer to "I've never been there".**
 
