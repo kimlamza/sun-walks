@@ -1,10 +1,16 @@
-# Generated or fetched — rebuilt on demand, never committed.
-# data/routes/, data/walks.csv and data/closures.csv ARE committed: the
-# first is small and stable, the other two are hand-curated knowledge that
-# exists nowhere else.
+# The terrain model is 95 MB and is only needed to BUILD horizon profiles.
+# The app itself never reads it - so it stays out, and anyone cloning this
+# repo can run the app without downloading it or getting an API key.
 data/dem/
-data/horizons/
+
+# Weather is a live forecast cache. Stale within hours.
 data/weather/
+
+# Everything else under data/ IS committed and is the point of the repo:
+#   horizons/   500 KB of precomputed skylines - what makes the app instant
+#   routes/     trail geometry from OpenStreetMap
+#   walks.csv   hand-curated metadata that exists nowhere else
+#   closures.csv seasonal restrictions
 
 # Python
 __pycache__/
