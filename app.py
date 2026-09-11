@@ -24,8 +24,13 @@ from src import weather
 from src.duration import format_duration, walk_times
 from src.evaluate import TIMEZONE, centre_of, evaluate, load_walks
 
-SUN = "#e8a33d"
-SHADE = "#7d8ca3"
+SUN = "#ff1f1f"
+SHADE = "#0066ff"
+
+WINTER_MONTHS = (11, 12, 1, 2, 3, 4)
+# A walk whose sunlit fraction swings by more than this between setting off
+# and getting back is not well described by any single number.
+BIG_SWING = 40
 
 
 # ----------------------------------------------------------------- loading
@@ -126,12 +131,62 @@ for walk in eligible:
     })
 
 looking_for_sun = mode == "Sun"
-results.sort(
-    key=lambda r: (
-        -1e9 if r["mid"] is None
-        else (-r["mid"] if looking_for_sun else r["mid"])
-    )
-)
+
+
+def average_sun(result):
+    """Mean of start, midpoint and end - the whole walk, not one instant."""
+    known = [result[k] for k in ("start", "mid", "end") if result[k] is not None]
+    return sum(known) / len(known) if known else None
+
+
+def swing(result):
+    """How much the sunlit fraction changes between setting off and getting back."""
+    known = [result[k] for k in ("start", "mid", "end") if result[k] is not None]
+    return max(known) - min(known) if len(known) > 1 else 0
+
+
+def warnings_for(result):
+    """Short flags a person should see before choosing."""
+    walk, flags = result["walk"], []
+
+    if result["end"] is None:
+        flags.append("finishes in dark")
+    if walk.get("access_note"):
+        flags.append("access")
+    if walk.get("ice_risk") == "high" and start.month in WINTER_MONTHS:
+        flags.append("ice")
+    if walk.get("water") == "none":
+        flags.append("no water")
+    if swing(result) >= BIG_SWING:
+        flags.append("changes a lot")
+
+    return ", ".join(flags)
+
+
+def ranking_key(result):
+    """
+    Rank on the average across the whole walk, not on one moment - and
+    demote anything that finishes after sunset regardless of how sunny it
+    was earlier.
+
+    Ranking on the midpoint alone put Mount Lady Macdonald second on a
+    February afternoon at 100%, while it finished an hour after dark. And
+    it made Goat Creek at 100/50/0 indistinguishable from a steady 50%,
+    which is not the same walk at all.
+
+    Returns a tuple, so Python sorts on the first element and only uses
+    the second to break ties: (tier, score).
+    """
+    average = average_sun(result)
+    if average is None:
+        return (2, 0)                       # never any sun
+    score = -average if looking_for_sun else average
+    if result["end"] is None:
+        return (1, score)                   # finishes in the dark
+    return (0, score)
+
+
+results.sort(key=ranking_key)
 
 beams = sorted(r["weather"]["dni"] for r in results
                if r["weather"] and r["weather"]["dni"] is not None)
@@ -147,10 +202,11 @@ if best["mid"] is None:
              "Try a later start.")
 else:
     word = "in direct sun" if looking_for_sun else "in shade"
-    figure = best["mid"] if looking_for_sun else 100 - best["mid"]
+    average = average_sun(best)
+    figure = average if looking_for_sun else 100 - average
 
     st.subheader(f"{best['walk']['name']} — {figure:.0f}% {word} "
-                 f"at {best['at']:%H:%M}")
+                 f"across the walk")
 
     left, right = st.columns([3, 2])
     with left:
@@ -177,11 +233,20 @@ else:
         if w.get("access_note"):
             st.warning(f"**Access:** {w['access_note']}")
 
-        if runner_up and runner_up["mid"] is not None:
-            gap = abs(best["mid"] - runner_up["mid"])
+        if swing(best) >= BIG_SWING:
+            st.warning(
+                f"**This one changes a lot while you are out** — "
+                f"{best['start']:.0f}% when you set off and "
+                f"{best['end']:.0f}% by the time you are back. The average "
+                "describes neither half."
+            )
+
+        runner_average = average_sun(runner_up) if runner_up else None
+        if runner_average is not None:
+            gap = abs(average - runner_average)
             st.write(
                 f"*{runner_up['walk']['name']} came second at "
-                f"{runner_up['mid']:.0f}%"
+                f"{runner_average:.0f}%"
                 + (" — within the model's precision, so treat them as equal."
                    if gap < 5 else ".")
             )
@@ -239,14 +304,16 @@ for result in results:
     if result["weather"] and result["weather"]["dni"] is not None:
         weather_note = weather.describe_beam(result["weather"]["dni"])
 
+    average = average_sun(result)
     table.append({
         "Walk": w["name"],
-        "Evaluated": f"{result['at']:%H:%M}",
+        "Average": "—" if average is None else f"{average:.0f}%",
         "Start": "dark" if result["start"] is None
                  else f"{result['start']:.0f}%",
-        "Midpoint": "dark" if result["mid"] is None
-                    else f"{result['mid']:.0f}%",
+        "Mid": "dark" if result["mid"] is None
+               else f"{result['mid']:.0f}%",
         "End": "dark" if result["end"] is None else f"{result['end']:.0f}%",
+        "⚠": warnings_for(result),
         "Direct beam": weather_note,
         "km": f"{w['distance_km']:.1f}",
         "Ascent": f"{w['ascent_m']:.0f} m",
@@ -254,10 +321,18 @@ for result in results:
         "Drive": f"{w['drive_min']} min",
         "Pass": w["pass_required"],
         "Water": w.get("water", ""),
-        "Access": "⚠" if w.get("access_note") else "",
     })
 
 st.dataframe(pd.DataFrame(table), hide_index=True, width="stretch")
+
+st.caption(
+    "**Ranked on the Average column** — the mean of start, midpoint and end, "
+    "so a walk that loses the sun halfway is not scored as though it kept it. "
+    "**Anything finishing after sunset is demoted below everything that does "
+    "not**, however sunny it was earlier. Warnings flag ice risk in winter, "
+    "no water on the route, access restrictions, and walks whose sunlit "
+    f"fraction swings by {BIG_SWING} points or more while you are out."
+)
 
 if excluded:
     with st.expander(f"{len(excluded)} walks excluded by your filters"):
