@@ -74,6 +74,12 @@ Sun-Walks/
     12-verification-register.md     ← ⚠ NEXT ACTION. Everything asserted but unchecked
 ```
 
+## Live
+
+**App:** https://sun-walks.streamlit.app/ · **Repo:** https://github.com/kimlamza/sun-walks (public)
+
+Streamlit Community Cloud redeploys automatically on every push to `main`. The app reads only `data/horizons/`, `data/routes/`, `data/walks.csv` and `data/closures.csv` — all committed, about 660 KB. The 95 MB terrain model is gitignored and is needed only to *rebuild* horizon profiles, never to run the app.
+
 ## Progress
 
 **Session 1 complete (9 September 2026).** Python 3.13.15 and Git installed; repo live at `github.com/kimlamza/sun-walks` (private); `src/sun.py` computes solar position for Canmore; **validation test A2 passed** — computed sunrise/sunset matched timeanddate.com to within 1 and 3 minutes, confirming solar position contributes negligible error to the project.

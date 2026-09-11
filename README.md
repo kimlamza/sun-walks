@@ -2,6 +2,11 @@
 
 **Which dog walk near Canmore will actually be in the sun.**
 
+### ▶ [sun-walks.streamlit.app](https://sun-walks.streamlit.app/)
+
+Nothing to install. If it takes half a minute to load, the free host has
+put it to sleep and it is waking up.
+
 ## Why
 
 Weather apps tell you it will be sunny. They do not tell you that the trail
