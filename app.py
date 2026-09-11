@@ -32,6 +32,12 @@ WINTER_MONTHS = (11, 12, 1, 2, 3, 4)
 # and getting back is not well described by any single number.
 BIG_SWING = 40
 
+# The model's precision floor, from docs/02. Two walks closer together than
+# this are not distinguishable, so the app groups them instead of ordering
+# them. Putting eleven walks in a numbered list implies the fourth beats
+# the fifth, which on a 3 point gap is a claim the model cannot support.
+TIE_BAND = 5
+
 
 # ----------------------------------------------------------------- loading
 
@@ -195,31 +201,84 @@ def ranking_key(result):
 
 results.sort(key=ranking_key)
 
+
+def score_of(result):
+    """What the walk is judged on, in whichever direction you asked for."""
+    average = average_sun(result)
+    if average is None:
+        return None
+    return average if looking_for_sun else 100 - average
+
+
+# Bands, not a ranked list.
+#
+# An earlier version grouped walks within TIE_BAND of whichever was best
+# that day. It produced a boundary that could not be defended: Tunnel
+# Mountain at 95% landed in the top group and Lake Minnewanka at 91% did
+# not, decided by a gap the model cannot resolve - and those two are
+# indistinguishable from each other.
+#
+# Fixed thresholds do not have that problem. "Mostly sunny" means the same
+# thing every day, where "best today" shifts with whatever else is in the
+# list. And the label is a claim about the walk rather than about its rank,
+# which is the only kind of claim this model can actually support.
+MOSTLY_SUNNY = 75
+PART_SUN = 40
+
+not_today = [r for r in results if r["end"] is None or score_of(r) is None]
+usable = [r for r in results if r not in not_today]
+
+best_bets = [r for r in usable if score_of(r) >= MOSTLY_SUNNY]
+also_consider = [r for r in usable if score_of(r) < MOSTLY_SUNNY]
+
+
+def band_name(result):
+    if result in not_today:
+        return "Not today"
+    score = score_of(result)
+    if score >= MOSTLY_SUNNY:
+        return "Mostly sunny" if looking_for_sun else "Mostly shaded"
+    if score >= PART_SUN:
+        return "Part sun"
+    return "Mostly shaded" if looking_for_sun else "Mostly sunny"
+
 beams = sorted(r["weather"]["dni"] for r in results
                if r["weather"] and r["weather"]["dni"] is not None)
 median_beam = beams[len(beams) // 2] if beams else None
 
 # ---------------------------------------------------------- recommendation
 
-best = results[0]
-runner_up = results[1] if len(results) > 1 else None
-
-if best["mid"] is None:
-    st.error(f"The sun is below the horizon at {best['at']:%H:%M}. "
-             "Try a later start.")
+if not best_bets:
+    st.error("Nothing works for that time — everything is either dark by "
+             "the end or closed. Try setting off earlier.")
+    best = None
 else:
+    best = best_bets[0]
     word = "in direct sun" if looking_for_sun else "in shade"
-    average = average_sun(best)
-    figure = average if looking_for_sun else 100 - average
 
-    st.subheader(f"{best['walk']['name']} — {figure:.0f}% {word} "
-                 f"across the walk")
+    if len(best_bets) == 1:
+        st.subheader(f"{best['walk']['name']} — {score_of(best):.0f}% "
+                     f"{word} across the walk")
+    else:
+        names = ", ".join(r["walk"]["name"] for r in best_bets)
+        st.subheader(f"{len(best_bets)} walks are mostly {word.split()[-1]} "
+                     "today")
+        st.write(
+            f"**{names}** — all above {MOSTLY_SUNNY}%, between "
+            f"{min(score_of(r) for r in best_bets):.0f}% and "
+            f"{max(score_of(r) for r in best_bets):.0f}%. The model is "
+            f"precise to about ±{TIE_BAND} points, so **it cannot tell you "
+            "which of these is best.** Pick on how far you want to walk, "
+            "how long you have, or which one you have not done lately."
+        )
 
+if best is not None:
     left, right = st.columns([3, 2])
     with left:
         w = best["walk"]
         st.write(
-            f"{w['distance_km']:.1f} km, {w['ascent_m']:.0f} m ascent, "
+            f"**{w['name']}** — {w['distance_km']:.1f} km, "
+            f"{w['ascent_m']:.0f} m ascent, "
             f"about {format_duration(best['hours'])}, "
             f"{w['drive_min']} min drive. "
             + (f"**{w['pass_required']} pass** needed."
@@ -254,14 +313,11 @@ else:
                 "describes neither half."
             )
 
-        runner_average = average_sun(runner_up) if runner_up else None
-        if runner_average is not None:
-            gap = abs(average - runner_average)
+        if also_consider:
+            next_up = also_consider[0]
             st.write(
-                f"*{runner_up['walk']['name']} came second at "
-                f"{runner_average:.0f}%"
-                + (" — within the model's precision, so treat them as equal."
-                   if gap < 5 else ".")
+                f"*Below that band, {next_up['walk']['name']} is the best "
+                f"of the rest at {score_of(next_up):.0f}%.*"
             )
 
     with right:
@@ -308,7 +364,7 @@ st.caption("Each dot is a sampled point on a trail. "
 
 # ----------------------------------------------------------------- table
 
-st.subheader("All eligible walks")
+st.subheader("The walks")
 
 table = []
 for result in results:
@@ -318,7 +374,9 @@ for result in results:
         weather_note = weather.describe_beam(result["weather"]["dni"])
 
     average = average_sun(result)
+    band = band_name(result)
     table.append([
+        band,
         # The walk itself
         w["name"],
         f"{w['distance_km']:.1f}",
@@ -339,6 +397,7 @@ for result in results:
 # Three groups rather than twelve flat columns: what the walk is, how sunny
 # it will be, and what to know before going.
 GROUPED_COLUMNS = pd.MultiIndex.from_tuples([
+    ("", "Group"),
     ("The walk", "Name"),
     ("The walk", "km"),
     ("The walk", "Ascent"),
@@ -360,12 +419,19 @@ st.dataframe(
 )
 
 st.caption(
-    "**Ranked on the Average column** — the mean of start, midpoint and end, "
-    "so a walk that loses the sun halfway is not scored as though it kept it. "
-    "**Anything finishing after sunset is demoted below everything that does "
-    "not**, however sunny it was earlier. Warnings flag ice risk in winter, "
-    "no water on the route, access restrictions, and walks whose sunlit "
-    f"fraction swings by {BIG_SWING} points or more while you are out."
+    f"**Grouped, not ranked.** The model is precise to roughly "
+    f"±{TIE_BAND} percentage points, so putting eleven walks in order would "
+    "imply differences it cannot actually see. The groups are fixed: "
+    f"**mostly sunny** above {MOSTLY_SUNNY}%, **part sun** between "
+    f"{PART_SUN}% and {MOSTLY_SUNNY}%, **mostly shaded** below that. "
+    "**Not today** is decided rather than judged — those finish after "
+    "sunset or are closed.\n\n"
+    "Within a group the order means nothing. Choose on distance, time, "
+    "water or which one you have not done lately.\n\n"
+    "The Average column is the mean of start, midpoint and end, so a walk "
+    "that loses the sun halfway is not scored as though it kept it. "
+    "Warnings flag ice risk in winter, access restrictions, and walks whose "
+    f"sunlit fraction swings by {BIG_SWING} points or more while you are out."
 )
 
 if excluded:
