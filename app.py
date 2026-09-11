@@ -344,6 +344,8 @@ chart = folium.Map(location=list(centre), zoom_start=11,
 
 for result in results:
     lit = result["lit"]
+    name = result["walk"]["name"]
+
     for index, (lat, lon) in enumerate(result["walk"]["points"]):
         sunny = lit is not None and bool(lit[index])
         folium.CircleMarker(
@@ -352,15 +354,35 @@ for result in results:
             color=SUN if sunny else SHADE,
             fill=True,
             fill_opacity=0.85,
-            popup=f"{result['walk']['name']} — "
-                  f"{'sun' if sunny else 'no direct sun'}",
+            # Tooltip rather than popup - it shows on hover, so you can
+            # sweep the map to find a walk instead of clicking blindly.
+            tooltip=f"{name} — {'sun' if sunny else 'no direct sun'}",
         ).add_to(chart)
+
+    # A small permanent label at each walk's centre, so the map can be read
+    # without touching it. pointer-events:none keeps the label from
+    # swallowing clicks meant for the dots underneath.
+    label_lat, label_lon = result["walk"]["points"].mean(axis=0)
+    folium.Marker(
+        location=[float(label_lat), float(label_lon)],
+        icon=folium.DivIcon(
+            icon_size=(150, 18),
+            icon_anchor=(75, 9),
+            html=(
+                '<div style="font-size:10px; font-weight:600; '
+                'color:#1a1a1a; text-align:center; white-space:nowrap; '
+                'background:rgba(255,255,255,0.78); border-radius:3px; '
+                'padding:1px 4px; pointer-events:none;">'
+                f'{name}</div>'
+            ),
+        ),
+    ).add_to(chart)
 
 st_folium(chart, height=460, use_container_width=True,
           returned_objects=[])
-st.caption("Each dot is a sampled point on a trail. "
-           f"Amber = direct sun, grey = no direct sun, at each walk's own "
-           "midpoint time.")
+st.caption("Each dot is a sampled point on a trail — **red for direct sun, "
+           "blue for shade**, at each walk's own midpoint time. Hover any "
+           "dot to see which walk it belongs to.")
 
 # ----------------------------------------------------------------- table
 
