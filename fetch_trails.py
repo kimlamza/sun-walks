@@ -108,10 +108,19 @@ TRAILS = {
         "keep": None,
         "role": "Small hill among giants",
     },
-    "cougar-creek": {
-        "search": "Cougar Creek",
-        "keep": None,
-        "role": "NE drainage - steep sided",
+    # Replaced Cougar Creek, whose mapped route runs up a canyon where
+    # travel past the debris retention structure is restricted after flood
+    # erosion. Foot access from that trailhead is limited to this trail, so
+    # this is the walk you are actually permitted to do from there.
+    # "Mount Lady MacDonald Route" is the exposed upper section above the
+    # teahouse ruins - the part already ruled out for a dog. It is also a
+    # genuinely different walk: 100% sunlit at 17:00 on the solstice where
+    # the lower trail reads 30%, because at a 2 degree sun angle the high
+    # ground catches light the valley slopes cannot. Keep the trail only.
+    "lady-macdonald": {
+        "search": "Lady Macdonald",
+        "keep": ["Lady MacDonald Trail"],
+        "role": "SW-facing climb above Canmore",
     },
     "goat-creek": {
         "search": "Goat Creek",
@@ -270,6 +279,24 @@ if __name__ == "__main__":
             print(f"{'':20}   - {name}")
         for name in sorted(bucket["rejected"]):
             print(f"{'':20}   x {name}  (excluded by 'keep')")
+
+    # A failed Overpass batch leaves the previous run's files untouched, and
+    # everything downstream then works from stale data without complaining.
+    # That has happened twice. Say so loudly.
+    stale = [
+        slug for slug in TRAILS
+        if not collected[slug]["points"]
+        and (ROUTES_DIR / f"{slug}.json").exists()
+    ]
+    if stale:
+        print("\n" + "!" * 62)
+        print("STALE DATA - these walks returned nothing this run, so the")
+        print("files on disk are from a PREVIOUS fetch and may not reflect")
+        print("the current filters:")
+        for slug in stale:
+            print(f"  - {slug}")
+        print("\nRe-run fetch_trails.py before trusting precompute_horizons.")
+        print("!" * 62)
 
     print("\nRead the names above. Every one should be something you would")
     print("actually walk. A road or a campground appearing here means the")

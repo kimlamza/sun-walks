@@ -135,6 +135,13 @@ Recorded as an `access_note` in `data/walks.csv`, shown as a warning in the app 
 
 **The wider point this exposed:** OpenStreetMap describes where a trail *runs*, never whether you may currently walk it. A 100% sunlit result says nothing about access. The app's caveats now say so explicitly.
 
+**✅ Resolved by swapping the walk, 11 September 2026.** Cougar Creek is replaced by **Mount Lady Macdonald** — the route you are actually permitted to walk from that trailhead. No guessed coordinates, and a better contrast-set member: a SW-facing climb rather than a shaded drainage.
+
+Two things came out of the swap:
+
+- **OSM splits it into "Lady MacDonald Trail" and "Mount Lady MacDonald Route"**, and `compare_variants.py` found a **70 point spread** at 17:00 on the solstice — 30% against 100%, because at a 2° sun angle the high ground catches light the valley slopes cannot. The Route is the exposed upper section already ruled out for a dog, so only the Trail is kept. **Third time that tool has found a split**, after Grassi Lakes. Where OSM gives a walk more than one name, the names usually mean something: the easy route and the hard route, the trail and the scramble
+- **It finishes after dark.** 880 m of ascent gives a 4h30 Naismith estimate, so a 15:00 February start ends at 19:30, over an hour past sunset. The app now says so in red. Nothing in the design planned for this — it fell out of evaluating the end time, and it matters more than the sunshine figure does
+
 ### 1.4 Seasonal closures and wildlife restrictions
 
 **Not implemented at all.** `06-dog-walk-filter.md` designs a Tier 1 seasonal gate; no code enforces it and the app says nothing.

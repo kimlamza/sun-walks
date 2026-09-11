@@ -163,6 +163,17 @@ else:
                if w["pass_required"] not in ("none", "verify")
                else "No pass needed.")
         )
+        # Falls out of evaluating the end time, and matters more than the
+        # sunshine figure: Mount Lady Macdonald takes 4h30, so a 15:00
+        # February start finishes over an hour after sunset.
+        if best["end"] is None:
+            finish = best["at"] + pd.Timedelta(hours=best["hours"] / 2)
+            st.error(
+                f"**You would finish this walk after dark** — around "
+                f"{finish:%H:%M}, with the sun already below the horizon. "
+                "Set off earlier, or pick something shorter."
+            )
+
         if w.get("access_note"):
             st.warning(f"**Access:** {w['access_note']}")
 
