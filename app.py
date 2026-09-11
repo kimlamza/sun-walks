@@ -253,6 +253,7 @@ for result in results:
         "Takes": format_duration(result["hours"]),
         "Drive": f"{w['drive_min']} min",
         "Pass": w["pass_required"],
+        "Water": w.get("water", ""),
         "Access": "⚠" if w.get("access_note") else "",
     })
 

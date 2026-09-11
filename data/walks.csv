@@ -1,12 +1,12 @@
-slug,name,distance_km,ascent_m,jurisdiction,pass_required,drive_min,geometry,trailhead_lat,trailhead_lon,trim_km,role,access_note
-grassi-lakes,Grassi Lakes (easy route),4.0,200,Canmore Nordic Centre PP,Kananaskis,10,osm,,,,NE-facing under Ha Ling,
-grassi-lakes-upper,Grassi Lakes (upper route),4.0,250,Canmore Nordic Centre PP,Kananaskis,10,osm,,,,Under the headwall - far shadier,
-grotto-canyon,Grotto Canyon,7.4,130,Bow Valley PP,Kananaskis,15,osm,,,,Slot canyon - azimuth gated,Dog access unconfirmed - sources conflict
-montane-traverse,Montane Traverse,7.4,380,Town of Canmore,none (Cougar Creek lot),5,osm,,,,SW-facing bench - the winter walk,
-tunnel-mountain,Tunnel Mountain,4.5,266,Banff National Park,Parks Canada,25,osm,,,,Small hill among big mountains,
-quarry-lake,Quarry Lake,2.5,20,Town of Canmore,none,5,osm-proximity,,,,Open valley floor in town,
-lady-macdonald,Mount Lady Macdonald,10.0,880,Town of Canmore / Bow Valley Wildland,none (Cougar Creek lot),5,osm,,,,SW-facing climb above Canmore,Steep sustained climb - 880 m of ascent to the teahouse ruins [verify]. The upper ridge beyond is exposed and unsuitable for a dog. Replaced Cougar Creek whose canyon route is restricted after flood erosion
-goat-creek,Goat Creek,10.0,200,Spray Valley PP,Kananaskis,15,osm,51.0617,-115.4186,5.0,Spray valley - different orientation,
-heart-creek,Heart Creek,4.4,100,Bow Valley Wildland PP,Kananaskis,20,osm,51.0474,-115.1645,,East end of the Bow Valley,
-troll-falls,Troll Falls,3.4,60,Kananaskis Country,Kananaskis,35,osm,,,,Kananaskis valley - runs N-S,
-lake-minnewanka,Lake Minnewanka,8.0,150,Banff National Park,Parks Canada,35,osm,51.2482,-115.4968,4.0,E-W lakeshore - south facing,
+slug,name,distance_km,ascent_m,jurisdiction,pass_required,drive_min,geometry,trailhead_lat,trailhead_lon,trim_km,water,role,access_note
+grassi-lakes,Grassi Lakes (easy route),4.0,200,Canmore Nordic Centre PP,Kananaskis,10,osm,,,,yes,NE-facing under Ha Ling,WINTER - Canmore Nordic Centre grooms ski trails and dogs are only permitted on designated ones [verify which]
+grassi-lakes-upper,Grassi Lakes (upper route),4.0,250,Canmore Nordic Centre PP,Kananaskis,10,osm,,,,yes,Under the headwall - far shadier,WINTER - as above. Rocky stepped sections underfoot
+grotto-canyon,Grotto Canyon,7.4,130,Bow Valley PP,Kananaskis,15,osm,,,,limited,Slot canyon - azimuth gated,Leashed dogs confirmed. Creek-bed footing is rocky and abrasive; icy in winter
+montane-traverse,Montane Traverse,7.4,380,Town of Canmore,none (Cougar Creek lot),5,osm,,,,limited,SW-facing bench - the winter walk,
+tunnel-mountain,Tunnel Mountain,4.5,266,Banff National Park,Parks Canada,25,osm,,,,none,Small hill among big mountains,No water on the climb - carry some in warm weather
+quarry-lake,Quarry Lake,2.5,20,Town of Canmore,none,5,osm-proximity,,,,yes,Open valley floor in town,Designated off-leash zones at the meadow and dog pond; on-leash elsewhere
+lady-macdonald,Mount Lady Macdonald,10.0,880,Town of Canmore / Bow Valley Wildland,none (Cougar Creek lot),5,osm,,,,none,SW-facing climb above Canmore,880 m sustained climb on loose rubble with no water. Hard on paws descending. The ridge above the teahouse ruins is exposed and unsuitable for a dog
+goat-creek,Goat Creek,10.0,200,Spray Valley PP,Kananaskis,15,osm,51.0617,-115.4186,5.0,yes,Spray valley - different orientation,WINTER - groomed ski trail. Alberta Parks does not permit pets on most groomed ski trails unless designated [verify]
+heart-creek,Heart Creek,4.4,100,Bow Valley Wildland PP,Kananaskis,20,osm,51.0474,-115.1645,,yes,East end of the Bow Valley,
+troll-falls,Troll Falls,3.4,60,Kananaskis Country,Kananaskis,35,osm,,,,yes,Kananaskis valley - runs N-S,Leashed dogs confirmed
+lake-minnewanka,Lake Minnewanka (to Stewart Canyon),3.0,80,Banff National Park,Parks Canada,35,osm,51.2482,-115.4968,1.5,yes,E-W lakeshore - south facing,"DOGS PROHIBITED past the Stewart Canyon bridge, year round. And from 10 July to 15 September pets are not allowed on this trail at all, even leashed - hikers must also be in groups of 4+ carrying bear spray"

@@ -10,7 +10,31 @@ Everything this project asserts that has not been checked against a primary sour
 
 ## Tier 1 — could make the tool wrong or misleading
 
-### 1.1 Are dogs actually allowed on all ten walks?
+### 1.1 Are dogs actually allowed on all the walks?
+
+> **✅ RESOLVED 11 September 2026.** Three findings, in ascending order of importance.
+>
+> **The blanket rule.** Alberta Parks requires all pets to be **leashed, no more than 2 m, at all times** in Provincial Parks, Wildland Provincial Parks and Provincial Recreation Areas. That covers Grassi Lakes, Grotto Canyon, Goat Creek, Heart Creek and Troll Falls in one line. Banff National Park is leash-at-all-times separately.
+>
+> **Grotto Canyon is resolved — leashed dogs are allowed.** The single source claiming pets were prohibited was wrong. Troll Falls and Mount Lady Macdonald also confirmed.
+>
+> **Lake Minnewanka is badly restricted, and the modelled route covered ground dogs cannot use:**
+> - **Dogs prohibited past the Stewart Canyon bridge, year round**
+> - **10 July to 15 September: pets not permitted at all, even leashed.** Hikers must also travel in groups of 4+ carrying bear spray
+>
+> Trimmed from 4 km to **1.5 km** — the bridge `[verify exact distance]` — and distance corrected from 8 km to 3 km. **Second walk whose mapped route ran into ground dogs are not allowed on**, after Cougar Creek.
+>
+> ### ⚠ The finding that matters most: groomed ski trails
+>
+> Alberta Parks: **"Pets are not permitted on most groomed ski trails unless designated."**
+>
+> **Goat Creek is a groomed ski trail in winter. Grassi Lakes sits in Canmore Nordic Centre Provincial Park, which grooms.**
+>
+> This is a winter tool. Its entire reason to exist is that the Bow Valley's shadow problem is a December phenomenon — and **two of its eleven walks may prohibit dogs in exactly the season it is built for.** The restriction is seasonal, so it was invisible to every summer-oriented source checked so far.
+>
+> Flagged in `access_note` for both. `[verify]` which Nordic Centre trails are dog-designated in winter, and whether Goat Creek is groomed along its full length.
+
+### 1.1a (superseded) Original status
 
 **Never checked for five of them.** The original five were researched in `09-candidate-walks.md`; the five added later were chosen for geographic contrast and their dog rules were assumed, not confirmed.
 
