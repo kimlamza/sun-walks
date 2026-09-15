@@ -106,6 +106,25 @@ Pull the horizon profile for a Canmore point, compare it against yours for the s
 
 ## 3. Tier B — validating against the real world, from here
 
+### A5. Shadowmap — ✅ PASSED 15 September 2026
+
+[Shadowmap](https://app.shadowmap.org) renders sun and shadow across a landscape in 3D. A third independent implementation, and **it checks something PVGIS could not**: PVGIS validated horizon *angles at a point*, while this validates *where shadows fall across the terrain*. Those fail differently — every horizon profile could be right while a projection error puts the shadows in the wrong place.
+
+**Test moment: 16 September 2026, 08:20 MDT**, chosen by scanning for the hour of greatest contrast rather than picking one and hoping.
+
+| Point | Height | Predicted | Margin | Shadowmap |
+|---|---|---|---|---|
+| Montane bench | 1,729 m | **shade** | −17.7° | ✅ shade |
+| Grassi Lakes | 1,443 m | **sun** | +5.5° | ✅ sun |
+| Quarry Lake | 1,369 m | **sun** | +4.6° | ✅ sun |
+| ~~Canmore centre~~ | 1,312 m | *excluded* | −0.8° | — |
+
+**Canmore centre was deliberately excluded** at −0.8°, inside our own error bars. A disagreement there would have proved nothing either way, and including it would have been the same mistake as the first Grassi Lakes variant comparison.
+
+**The test that mattered was the counterintuitive one.** The Montane bench sits **286 m higher than Grassi Lakes and is in deep shadow while Grassi is lit**, because Lady Macdonald blocks the low morning sun from directly above it. A sign error or a bad projection would very likely have reversed that. It did not.
+
+**Weaker than PVGIS, and worth saying so.** This is a visual comparison giving three yes/no answers, against PVGIS's 0.7° RMS across 49 bearings. It also runs on Nextzen elevation rather than Copernicus, and models buildings as well as terrain — immaterial in Canmore, but a difference. Its value is the *kind* of error it can catch, not its precision.
+
 ### B1. Public webcams — ⏳ PREDICTION MADE 11 September 2026, observation pending
 
 **Camera:** the live view from A Bear & Bison Country Inn, 705 Benchlands Trail, Canmore — **51.0964, −115.3429**, ground height **1,372 m** in our terrain model. It looks south-west across the valley at the Three Sisters, so the frame contains the mountains, the valley floor and the camera's own foreground at three different distances and heights.
